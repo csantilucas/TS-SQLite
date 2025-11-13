@@ -11,15 +11,9 @@ db.all  ->  executar querys
 */
 
 
-//funcao para criar as tabelas
-async function createTables() {
-    const db = await getDB()
-
-    try {
-        await db.exec(
-            `
-            -- Tabela: Hospede
-CREATE TABLE Hospede (
+const tables = `
+-- Tabela: Hospede
+CREATE TABLE IF NOT EXISTS Hospede (
     hospede_id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL,
     cpf TEXT UNIQUE NOT NULL,
@@ -30,17 +24,17 @@ CREATE TABLE Hospede (
 );
 
 -- Tabela: Quarto
-CREATE TABLE Quarto (
+CREATE TABLE IF NOT EXISTS Quarto (
     quarto_id INTEGER PRIMARY KEY AUTOINCREMENT,
     numero TEXT NOT NULL,
-    tipo TEXT NOT NULL, -- ex: solteiro, casal, suíte
+    tipo TEXT NOT NULL,
     capacidade INTEGER,
     preco_diaria REAL NOT NULL,
     status TEXT DEFAULT 'disponível'
 );
 
--- Tabela: Reserva (1:N com Hospede)
-CREATE TABLE Reserva (
+-- Tabela: Reserva
+CREATE TABLE IF NOT EXISTS Reserva (
     reserva_id INTEGER PRIMARY KEY AUTOINCREMENT,
     hospede_id INTEGER NOT NULL,
     quarto_id INTEGER NOT NULL,
@@ -52,15 +46,15 @@ CREATE TABLE Reserva (
 );
 
 -- Tabela: Servico
-CREATE TABLE Servico (
+CREATE TABLE IF NOT EXISTS Servico (
     servico_id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL,
     descricao TEXT,
     preco REAL NOT NULL
 );
 
--- Tabela: Reserva_Servico (N:N entre Reserva e Servico)
-CREATE TABLE Reserva_Servico (
+-- Tabela: Reserva_Servico
+CREATE TABLE IF NOT EXISTS Reserva_Servico (
     reserva_id INTEGER NOT NULL,
     servico_id INTEGER NOT NULL,
     quantidade INTEGER DEFAULT 1,
@@ -69,22 +63,29 @@ CREATE TABLE Reserva_Servico (
     FOREIGN KEY (servico_id) REFERENCES Servico(servico_id)
 );
 
-
-CREATE TABLE logs (
+-- Tabela: logs
+CREATE TABLE IF NOT EXISTS logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     usuario_id INTEGER NOT NULL,
     acao TEXT NOT NULL,
     data_hora DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (usuario_id) REFERENCES Usuario(user_id)
+    FOREIGN KEY (usuario_id) REFERENCES Hospede(hospede_id)
 );
-            `
-        )
-    }
-    catch (error) { console.error }
+`;
 
-    closeDB()
+async function createTables() {
+    const db = await getDB();
+
+    try {
+        await db.exec(tables);
+        console.log("Tabelas criadas com sucesso!");
+    } catch (error) {
+        console.error("Erro ao criar tabelas:", error);
+    } finally {
+        await closeDB();
+    }
 }
 
+createTables();
 
-createTables()
 

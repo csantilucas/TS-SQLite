@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch ./repository/initDB.ts"
+    "dev": "tsx watch ./repository/tablesDB.ts"
   },
   "keywords": [],
   "author": "",

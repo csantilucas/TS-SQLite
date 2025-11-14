@@ -4,7 +4,7 @@ import { open } from "sqlite";
 
 //criar o banco no arquivo
 const dbPromisse = open({
-    filename:'dataBase.sqlite',
+    filename:'./dataBase.sqlite',
     driver: sqlite3.Database
 })
 
@@ -18,6 +18,8 @@ export async function closeDB() {
     const db = await dbPromisse;
     await db.close();
   }
+
+await getDB()
 
 
 

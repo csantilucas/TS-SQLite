@@ -12,55 +12,78 @@ db.all  ->  executar querys
 
 
 const tables = `
--- Tabela: Hospede
-CREATE TABLE IF NOT EXISTS Hospede (
-    hospede_id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+-- Tabela: Endereco
+CREATE TABLE IF NOT EXISTS Endereco (
+    endereco_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    cliente_id INTEGER NOT NULL,
+    rua TEXT NOT NULL,
+    bairro TEXT NOT NULL,
+    cep TEXT UNIQUE,
+    numero TEXT NOT NULL,
+    complemento TEXT,
+    FOREIGN KEY (cliente_id) REFERENCES Cliente(cliente_id)
+);
+
+
+-- Tabela: Cliente
+CREATE TABLE IF NOT EXISTS Cliente (
+    cliente_id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL,
-    cpf TEXT UNIQUE NOT NULL,
     email TEXT UNIQUE NOT NULL,
+    cpf TEXT UNIQUE,
     telefone TEXT,
     senha TEXT NOT NULL,
     data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabela: Quarto
-CREATE TABLE IF NOT EXISTS Quarto (
-    quarto_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    numero TEXT NOT NULL,
-    tipo TEXT NOT NULL,
-    capacidade INTEGER,
-    preco_diaria REAL NOT NULL,
-    status TEXT DEFAULT 'disponível'
+-- Tabela: Pedido
+CREATE TABLE IF NOT EXISTS Pedido (
+    pedido_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    cliente_id INTEGER NOT NULL,
+    data_pedido DATETIME DEFAULT CURRENT_TIMESTAMP,
+    status TEXT DEFAULT 'aberto',
+    valor_total REAL DEFAULT 0,
+    FOREIGN KEY (cliente_id) REFERENCES Cliente(cliente_id)
 );
 
--- Tabela: Reserva
-CREATE TABLE IF NOT EXISTS Reserva (
-    reserva_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    hospede_id INTEGER NOT NULL,
-    quarto_id INTEGER NOT NULL,
-    data_checkin DATE NOT NULL,
-    data_checkout DATE NOT NULL,
-    status TEXT DEFAULT 'ativa',
-    FOREIGN KEY (hospede_id) REFERENCES Hospede(hospede_id),
-    FOREIGN KEY (quarto_id) REFERENCES Quarto(quarto_id)
-);
-
--- Tabela: Servico
-CREATE TABLE IF NOT EXISTS Servico (
-    servico_id INTEGER PRIMARY KEY AUTOINCREMENT,
+-- Tabela: Produto
+CREATE TABLE IF NOT EXISTS Produto (
+    produto_id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL,
     descricao TEXT,
-    preco REAL NOT NULL
+    preco REAL NOT NULL,
+    estoque INTEGER DEFAULT 0
 );
 
--- Tabela: Reserva_Servico
-CREATE TABLE IF NOT EXISTS Reserva_Servico (
-    reserva_id INTEGER NOT NULL,
-    servico_id INTEGER NOT NULL,
+-- Tabela: Categoria
+CREATE TABLE IF NOT EXISTS Categoria (
+    categoria_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL UNIQUE,
+    descricao TEXT
+);
+
+
+-- Tabela:Produto_categoria
+CREATE TABLE IF NOT EXISTS Produto_Categoria (
+    produto_id INTEGER NOT NULL,
+    categoria_id INTEGER NOT NULL,
+    PRIMARY KEY (produto_id, categoria_id),
+    FOREIGN KEY (produto_id) REFERENCES Produto(produto_id),
+    FOREIGN KEY (categoria_id) REFERENCES Categoria(categoria_id)
+);
+
+
+-- Tabela: Pedido_produto
+
+CREATE TABLE IF NOT EXISTS Pedido_Produto (
+    pedido_id INTEGER NOT NULL,
+    produto_id INTEGER NOT NULL,
     quantidade INTEGER DEFAULT 1,
-    PRIMARY KEY (reserva_id, servico_id),
-    FOREIGN KEY (reserva_id) REFERENCES Reserva(reserva_id),
-    FOREIGN KEY (servico_id) REFERENCES Servico(servico_id)
+    preco_unitario REAL NOT NULL,
+    PRIMARY KEY (pedido_id, produto_id),
+    FOREIGN KEY (pedido_id) REFERENCES Pedido(pedido_id),
+    FOREIGN KEY (produto_id) REFERENCES Produto(produto_id)
 );
 
 -- Tabela: logs
@@ -68,16 +91,125 @@ CREATE TABLE IF NOT EXISTS logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     usuario_id INTEGER NOT NULL,
     acao TEXT NOT NULL,
-    data_hora DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (usuario_id) REFERENCES Hospede(hospede_id)
+    data_hora DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 `;
+const triggers =`
+-- Log de novo cliente
+CREATE TRIGGER IF NOT EXISTS log_insert_cliente
+AFTER INSERT ON Cliente
+BEGIN
+    INSERT INTO Logs (usuario_id, acao)
+    VALUES (NEW.cliente_id, 'INSERT em Cliente: nome=' || NEW.nome || ', email=' || NEW.email);
+END;
+
+-- Log de update no Cliente
+CREATE TRIGGER IF NOT EXISTS log_update_cliente
+AFTER UPDATE ON Cliente
+BEGIN 
+    INSERT INTO Logs (usuario_id, acao)
+    VALUES (
+        NEW.cliente_id,
+        'UPDATE em Cliente: nome antigo=' || OLD.nome || ', novo nome=' || NEW.nome ||
+        ', email antigo=' || OLD.email || ', novo email=' || NEW.email
+    );
+END;
+
+-- Log de insert no Produto
+CREATE TRIGGER IF NOT EXISTS log_insert_produto
+AFTER INSERT ON Produto
+BEGIN
+    INSERT INTO Logs (usuario_id, acao)
+    VALUES (0, 'INSERT em Produto: nome=' || NEW.nome || ', preco=' || NEW.preco);
+END;
+
+-- Log de update no Produto
+CREATE TRIGGER IF NOT EXISTS log_update_produto
+AFTER UPDATE ON Produto
+BEGIN
+    INSERT INTO Logs (usuario_id, acao)
+    VALUES (0, 'UPDATE em Produto: nome antigo=' || OLD.nome || ', novo nome=' || NEW.nome);
+END;
+
+-- Log de delete no Produto
+CREATE TRIGGER IF NOT EXISTS log_delete_produto
+AFTER DELETE ON Produto
+BEGIN
+    INSERT INTO Logs (usuario_id, acao)
+    VALUES (0, 'DELETE em Produto: nome=' || OLD.nome || ', preco=' || OLD.preco);
+END;
+
+-- Log de insert na Categoria
+CREATE TRIGGER IF NOT EXISTS log_insert_categoria
+AFTER INSERT ON Categoria
+BEGIN
+    INSERT INTO Logs (usuario_id, acao)
+    VALUES (0, 'INSERT em Categoria: nome=' || NEW.nome);
+END;
+
+-- Log de update na Categoria
+CREATE TRIGGER IF NOT EXISTS log_update_categoria
+AFTER UPDATE ON Categoria
+BEGIN
+    INSERT INTO Logs (usuario_id, acao)
+    VALUES (0, 'UPDATE em Categoria: nome antigo=' || OLD.nome || ', novo nome=' || NEW.nome);
+END;
+
+-- Log de delete na Categoria
+CREATE TRIGGER IF NOT EXISTS log_delete_categoria
+AFTER DELETE ON Categoria
+BEGIN
+    INSERT INTO Logs (usuario_id, acao)
+    VALUES (0, 'DELETE em Categoria: nome=' || OLD.nome);
+END;
+
+-- Log de insert em Produto_Categoria
+CREATE TRIGGER IF NOT EXISTS log_insert_categoria_on_produto
+AFTER INSERT ON Produto_Categoria
+BEGIN
+    INSERT INTO Logs (usuario_id, acao)
+    VALUES (0, 'INSERT em Produto_Categoria: produto=' || NEW.nome || ', categoria' || NEW.nome);
+END;
+
+-- Log de delete em Produto_Categoria
+CREATE TRIGGER IF NOT EXISTS log_remove_categoria_on_produto
+AFTER DELETE ON Produto_Categoria
+BEGIN
+    INSERT INTO Logs (usuario_id, acao)
+    VALUES (0, 'DELETE em Produto_Categoria: produto_id=' || OLD.produto_id || ', categoria_id=' || OLD.categoria_id);
+END;
+
+-- Log de insert em Pedido_Produto
+CREATE TRIGGER IF NOT EXISTS log_create_pedido_produtoPedido
+AFTER INSERT ON Pedido_Produto
+BEGIN
+    INSERT INTO Logs (usuario_id, acao)
+    VALUES (0, 'INSERT em Pedido_Produto: pedido_id=' || NEW.pedido_id || ', produto_id=' || NEW.produto_id);
+END;
+
+-- Log de delete em Pedido_Produto
+CREATE TRIGGER IF NOT EXISTS log_delete_pedido_produtoPedido
+AFTER DELETE ON Pedido_Produto
+BEGIN
+    INSERT INTO Logs (usuario_id, acao)
+    VALUES (0, 'DELETE em Pedido_Produto: pedido_id=' || OLD.pedido_id || ', produto_id=' || OLD.produto_id);
+END;
+
+-- Log de novo pedido
+CREATE TRIGGER IF NOT EXISTS log_insert_pedido
+AFTER INSERT ON Pedido
+BEGIN
+    INSERT INTO Logs (usuario_id, acao)
+    VALUES (NEW.cliente_id, 'INSERT em Pedido: pedido_id=' || NEW.pedido_id);
+END;
+`
 
 async function createTables() {
     const db = await getDB();
 
     try {
         await db.exec(tables);
+        await db.exec(triggers);
         console.log("Tabelas criadas com sucesso!");
     } catch (error) {
         console.error("Erro ao criar tabelas:", error);

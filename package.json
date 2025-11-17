@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "tsx ./database/initDB.ts"
+    "dev": "tsx ./repository/clienteRepository.ts"
   },
   "keywords": [],
   "author": "",

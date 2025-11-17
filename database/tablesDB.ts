@@ -95,11 +95,16 @@ CREATE TABLE IF NOT EXISTS logs (
 );
 `;
 const triggers =`
+
+-- ===========================
+-- TRIGGERS PARA CLIENTE
+-- ===========================
+
 -- Log de novo cliente
 CREATE TRIGGER IF NOT EXISTS log_insert_cliente
 AFTER INSERT ON Cliente
 BEGIN
-    INSERT INTO Logs (usuario_id, acao)
+    INSERT INTO logs (usuario_id, acao)
     VALUES (NEW.cliente_id, 'INSERT em Cliente: nome=' || NEW.nome || ', email=' || NEW.email);
 END;
 
@@ -107,7 +112,7 @@ END;
 CREATE TRIGGER IF NOT EXISTS log_update_cliente
 AFTER UPDATE ON Cliente
 BEGIN 
-    INSERT INTO Logs (usuario_id, acao)
+    INSERT INTO logs (usuario_id, acao)
     VALUES (
         NEW.cliente_id,
         'UPDATE em Cliente: nome antigo=' || OLD.nome || ', novo nome=' || NEW.nome ||
@@ -115,55 +120,86 @@ BEGIN
     );
 END;
 
--- Log de insert no Produto
+-- Log de delete no Cliente
+CREATE TRIGGER IF NOT EXISTS log_delete_cliente
+AFTER DELETE ON Cliente
+BEGIN
+    INSERT INTO logs (usuario_id, acao)
+    VALUES (OLD.cliente_id, 'DELETE em Cliente: nome=' || OLD.nome || ', email=' || OLD.email);
+END;
+
+-- ===========================
+-- TRIGGERS PARA ENDERECO
+-- ===========================
+
+CREATE TRIGGER IF NOT EXISTS log_insert_endereco
+AFTER INSERT ON Endereco
+BEGIN
+    INSERT INTO logs (usuario_id, acao)
+    VALUES (NEW.cliente_id, 'INSERT em Endereco: rua=' || NEW.rua || ', numero=' || NEW.numero);
+END;
+
+CREATE TRIGGER IF NOT EXISTS log_delete_endereco
+AFTER DELETE ON Endereco
+BEGIN
+    INSERT INTO logs (usuario_id, acao)
+    VALUES (OLD.cliente_id, 'DELETE em Endereco: rua=' || OLD.rua || ', numero=' || OLD.numero);
+END;
+
+-- ===========================
+-- TRIGGERS PARA PRODUTO
+-- ===========================
+
 CREATE TRIGGER IF NOT EXISTS log_insert_produto
 AFTER INSERT ON Produto
 BEGIN
-    INSERT INTO Logs (usuario_id, acao)
+    INSERT INTO logs (usuario_id, acao)
     VALUES (0, 'INSERT em Produto: nome=' || NEW.nome || ', preco=' || NEW.preco);
 END;
 
--- Log de update no Produto
 CREATE TRIGGER IF NOT EXISTS log_update_produto
 AFTER UPDATE ON Produto
 BEGIN
-    INSERT INTO Logs (usuario_id, acao)
+    INSERT INTO logs (usuario_id, acao)
     VALUES (0, 'UPDATE em Produto: nome antigo=' || OLD.nome || ', novo nome=' || NEW.nome);
 END;
 
--- Log de delete no Produto
 CREATE TRIGGER IF NOT EXISTS log_delete_produto
 AFTER DELETE ON Produto
 BEGIN
-    INSERT INTO Logs (usuario_id, acao)
+    INSERT INTO logs (usuario_id, acao)
     VALUES (0, 'DELETE em Produto: nome=' || OLD.nome || ', preco=' || OLD.preco);
 END;
 
--- Log de insert na Categoria
+-- ===========================
+-- TRIGGERS PARA CATEGORIA
+-- ===========================
+
 CREATE TRIGGER IF NOT EXISTS log_insert_categoria
 AFTER INSERT ON Categoria
 BEGIN
-    INSERT INTO Logs (usuario_id, acao)
+    INSERT INTO logs (usuario_id, acao)
     VALUES (0, 'INSERT em Categoria: nome=' || NEW.nome);
 END;
 
--- Log de update na Categoria
 CREATE TRIGGER IF NOT EXISTS log_update_categoria
 AFTER UPDATE ON Categoria
 BEGIN
-    INSERT INTO Logs (usuario_id, acao)
+    INSERT INTO logs (usuario_id, acao)
     VALUES (0, 'UPDATE em Categoria: nome antigo=' || OLD.nome || ', novo nome=' || NEW.nome);
 END;
 
--- Log de delete na Categoria
 CREATE TRIGGER IF NOT EXISTS log_delete_categoria
 AFTER DELETE ON Categoria
 BEGIN
-    INSERT INTO Logs (usuario_id, acao)
+    INSERT INTO logs (usuario_id, acao)
     VALUES (0, 'DELETE em Categoria: nome=' || OLD.nome);
 END;
 
--- Log de insert em Produto_Categoria
+-- ===========================
+-- TRIGGERS PARA PRODUTO_CATEGORIA
+-- ===========================
+
 CREATE TRIGGER IF NOT EXISTS log_insert_categoria_on_produto
 AFTER INSERT ON Produto_Categoria
 BEGIN
@@ -171,7 +207,6 @@ BEGIN
     VALUES (0, 'INSERT em Produto_Categoria: produto_id=' || NEW.produto_id || ', categoria_id=' || NEW.categoria_id);
 END;
 
--- Log de delete em Produto_Categoria
 CREATE TRIGGER IF NOT EXISTS log_remove_categoria_on_produto
 AFTER DELETE ON Produto_Categoria
 BEGIN
@@ -179,30 +214,59 @@ BEGIN
     VALUES (0, 'DELETE em Produto_Categoria: produto_id=' || OLD.produto_id || ', categoria_id=' || OLD.categoria_id);
 END;
 
--- Log de insert em Pedido_Produto
-CREATE TRIGGER IF NOT EXISTS log_create_pedido_produtoPedido
+-- ===========================
+-- TRIGGERS PARA PEDIDO_PRODUTO
+-- ===========================
+
+CREATE TRIGGER IF NOT EXISTS log_create_pedido_produto
 AFTER INSERT ON Pedido_Produto
 BEGIN
-    INSERT INTO Logs (usuario_id, acao)
-    VALUES (0, 'INSERT em Pedido_Produto: pedido_id=' || NEW.pedido_id || ', produto_id=' || NEW.produto_id);
+    INSERT INTO logs (usuario_id, acao)
+    VALUES (0, 'INSERT em Pedido_Produto: pedido_id=' || NEW.pedido_id || ', produto_id=' || NEW.produto_id || ', quantidade=' || NEW.quantidade);
 END;
 
--- Log de delete em Pedido_Produto
-CREATE TRIGGER IF NOT EXISTS log_delete_pedido_produtoPedido
+CREATE TRIGGER IF NOT EXISTS log_update_pedido_produto
+AFTER UPDATE ON Pedido_Produto
+BEGIN
+    INSERT INTO logs (usuario_id, acao)
+    VALUES (0, 'UPDATE em Pedido_Produto: pedido_id=' || NEW.pedido_id || ', produto_id=' || NEW.produto_id || ', quantidade=' || NEW.quantidade);
+END;
+
+CREATE TRIGGER IF NOT EXISTS log_delete_pedido_produto
 AFTER DELETE ON Pedido_Produto
 BEGIN
-    INSERT INTO Logs (usuario_id, acao)
+    INSERT INTO logs (usuario_id, acao)
     VALUES (0, 'DELETE em Pedido_Produto: pedido_id=' || OLD.pedido_id || ', produto_id=' || OLD.produto_id);
 END;
 
--- Log de novo pedido
+-- ===========================
+-- TRIGGERS PARA PEDIDO
+-- ===========================
+
 CREATE TRIGGER IF NOT EXISTS log_insert_pedido
 AFTER INSERT ON Pedido
 BEGIN
-    INSERT INTO Logs (usuario_id, acao)
+    INSERT INTO logs (usuario_id, acao)
     VALUES (NEW.cliente_id, 'INSERT em Pedido: pedido_id=' || NEW.pedido_id);
 END;
+
+CREATE TRIGGER IF NOT EXISTS log_update_pedido
+AFTER UPDATE ON Pedido
+BEGIN
+    INSERT INTO logs (usuario_id, acao)
+    VALUES (NEW.cliente_id, 'UPDATE em Pedido: pedido_id=' || NEW.pedido_id || ', status=' || NEW.status);
+END;
+
+CREATE TRIGGER IF NOT EXISTS log_delete_pedido
+AFTER DELETE ON Pedido
+BEGIN
+    INSERT INTO logs (usuario_id, acao)
+    VALUES (OLD.cliente_id, 'DELETE em Pedido: pedido_id=' || OLD.pedido_id);
+END;
+
+
 `
+
 
 export async function createTables() {
     const db = await getDB();

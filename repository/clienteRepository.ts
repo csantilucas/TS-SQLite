@@ -43,8 +43,9 @@ export class ClienteRepository {
 
     static async updatePassword(id:number, senha:string){
         const db = await getDB()
-        await db.run(`UPDATE Cliente SET senha = ? WHERE cliente_id = ?`),
+        await db.run(`UPDATE Cliente SET senha = ? WHERE cliente_id = ?`,
         [senha, id]
+    )
     }
 
     // DELETE
@@ -57,5 +58,18 @@ export class ClienteRepository {
     }
 
 }
+
+
+
+ClienteRepository.create('lucas','lucasteste2@gmail.com','fq89fF$@F2','341278788233','69992162902')
+console.log('usuario inserido')
+
+console.table( await ClienteRepository.findAll())
+
+
+ClienteRepository.updatePassword(1,'@#D@fwQW$3t34')
+console.log('senha atulizada')
+
+ClienteRepository.delete(1)
 
 

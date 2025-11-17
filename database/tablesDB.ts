@@ -4,8 +4,8 @@ import { closeDB, getDB } from "./initDB"
 /*
 comandos usados
 
-db.exec ->  executar create e update
-db.run  ->  executar insert
+db.exec ->  executar create 
+db.run  ->  executar insert e update
 db.all  ->  executar querys
 
 */
@@ -167,15 +167,15 @@ END;
 CREATE TRIGGER IF NOT EXISTS log_insert_categoria_on_produto
 AFTER INSERT ON Produto_Categoria
 BEGIN
-    INSERT INTO Logs (usuario_id, acao)
-    VALUES (0, 'INSERT em Produto_Categoria: produto=' || NEW.nome || ', categoria' || NEW.nome);
+    INSERT INTO logs (usuario_id, acao)
+    VALUES (0, 'INSERT em Produto_Categoria: produto_id=' || NEW.produto_id || ', categoria_id=' || NEW.categoria_id);
 END;
 
 -- Log de delete em Produto_Categoria
 CREATE TRIGGER IF NOT EXISTS log_remove_categoria_on_produto
 AFTER DELETE ON Produto_Categoria
 BEGIN
-    INSERT INTO Logs (usuario_id, acao)
+    INSERT INTO logs (usuario_id, acao)
     VALUES (0, 'DELETE em Produto_Categoria: produto_id=' || OLD.produto_id || ', categoria_id=' || OLD.categoria_id);
 END;
 
@@ -204,7 +204,7 @@ BEGIN
 END;
 `
 
-async function createTables() {
+export async function createTables() {
     const db = await getDB();
 
     try {
@@ -218,6 +218,6 @@ async function createTables() {
     }
 }
 
-createTables();
+
 
 

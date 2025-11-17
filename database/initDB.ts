@@ -1,27 +1,27 @@
-// importa as bibliotacas para a inicialização do banco
+// importa as bibliotecas para a inicialização do banco
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
+import { createTables } from "./tablesDB";
 
-//criar o banco no arquivo
-const dbPromisse = open({
-    filename:'./dataBase.sqlite',
-    driver: sqlite3.Database
-})
+// cria o banco no arquivo
+const dbPromise = open({
+  filename: './dataBase.sqlite',
+  driver: sqlite3.Database
+});
 
-//funcao para retornar o banco
-export function getDB(){
-    return dbPromisse
+// função para retornar o banco
+export function getDB() {
+  return dbPromise;
 }
 
-//funcao para fechar o banco depois de uma operacao
+// função para fechar o banco depois de uma operação
 export async function closeDB() {
-    const db = await dbPromisse;
-    await db.close();
-  }
+  const db = await dbPromise;
+  await db.close();
+}
 
-await getDB()
-
-
-
-
-
+// cria as tabelas depois de abrir o banco
+(async () => {
+  await createTables();
+  console.log("Banco inicializado com tabelas e triggers!");
+})();

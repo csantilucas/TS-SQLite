@@ -25,13 +25,13 @@ export class ProdutoRepository {
     }
 
     //READ
-    static async findAll():Promise<Produto[] >{
+    static async findAll():Promise<Produto[] | undefined>{
         const db = await getDB()
         const result = await db.all(`select * from Produto `)
         return result
     }
     //READ BY NAME
-    static async findByName(nome:string):Promise<Produto[]>{
+    static async findByName(nome:string):Promise<Produto[] | undefined>{
         const db = await getDB()
         const result = await db.get(`SELECT * FROM Produto WHERE nome= ?`,
             [nome]
@@ -39,7 +39,7 @@ export class ProdutoRepository {
         return result
     }
     //READ BY ID
-    static async findByID(id:number):Promise<Produto[]>{
+    static async findByID(id:number):Promise<Produto[] | undefined>{
         const db = await getDB()
         const result = await db.get(`SELECT * FROM Produto WHERE produto_id= ?`,
             [id]

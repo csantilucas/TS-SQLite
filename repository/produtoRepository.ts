@@ -8,8 +8,7 @@ db.all  ->  executar querys
 */
 
 import { closeDB, getDB } from "../database/initDB";
-
-
+import { Produto } from "../models/modelProduto";
 // CRUD PARA PRODUTO
 
 export class ProdutoRepository {
@@ -48,7 +47,6 @@ export class ProdutoRepository {
         return result 
     }
 
-
     // UPDATE
 
    static async update(id:number, nome: string, descricao: string, preco: number, estoque: number): Promise<number>{
@@ -59,8 +57,7 @@ export class ProdutoRepository {
         return result.changes ?? 0
 
     }
-
-
+    //DELETE
 
     static async delete(id:number): Promise<number>{
         const db = await getDB()

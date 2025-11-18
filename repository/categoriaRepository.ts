@@ -31,5 +31,11 @@ export class CategoriaRepository {
         return await db.all(`SELECT * FROM Categoria`)
     }
 
+    static async findByID(id:number):Promise<Categoria | undefined>{
+        const db = await getDB()
+        return await db.get(`SELECT * FROM Categoria WHERE categoria_id = ?`,
+        [id])
+    }
+
 
 }

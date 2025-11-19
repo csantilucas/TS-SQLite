@@ -10,7 +10,9 @@ const dbPromise = open({
 });
 
 // função para retornar o banco
-export function getDB() {
+export async function getDB() {
+  const db = await dbPromise
+  await db.exec("PRAGMA foreign_keys = ON;");
   return dbPromise;
 }
 

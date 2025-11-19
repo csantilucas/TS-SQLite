@@ -65,7 +65,7 @@ EnderecoRepository {
 
 //ClienteRepository.findAll().then(res => console.table(res))
 
-EnderecoRepository.create(2,'rua dos parecis','jardim america', '4323454', '2341','casa de esquina').then(res=> {console.log(res)})
+//EnderecoRepository.create(2,'rua dos parecis','jardim america', '4323454', '2341','casa de esquina').then(res=> {console.log(res)})
 
 EnderecoRepository.findAll().then(res => console.table(res))
-//EnderecoRepository.findByIDCleinte(2).then(res=>console.table(res))
+EnderecoRepository.findByIDCliente(2).then(res=>console.table(res))

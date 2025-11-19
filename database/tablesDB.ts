@@ -239,6 +239,61 @@ BEGIN
     VALUES (0, 'DELETE em Pedido_Produto: pedido_id=' || OLD.pedido_id || ', produto_id=' || OLD.produto_id);
 END;
 
+CREATE TRIGGER IF NOT EXISTS atualizar_valor_total
+AFTER INSERT OR UPDATE OR DELETE ON Pedido_Produto
+BEGIN
+  UPDATE Pedido
+  SET valor_total = (
+    SELECT SUM(quantidade * preco_unitario)
+    FROM Pedido_Produto
+    WHERE pedido_id = NEW.pedido_id
+  )
+  WHERE pedido_id = NEW.pedido_id;
+END;
+
+
+
+------- atulizar valores
+
+CREATE TRIGGER IF NOT EXISTS atualizar_valor_total_insert
+      AFTER INSERT ON Pedido_Produto
+      BEGIN
+        UPDATE Pedido
+        SET valor_total = (
+          SELECT SUM(quantidade * preco_unitario)
+          FROM Pedido_Produto
+          WHERE pedido_id = NEW.pedido_id
+        )
+        WHERE pedido_id = NEW.pedido_id;
+      END;
+
+      CREATE TRIGGER IF NOT EXISTS atualizar_valor_total_update
+      AFTER UPDATE ON Pedido_Produto
+      BEGIN
+        UPDATE Pedido
+        SET valor_total = (
+          SELECT SUM(quantidade * preco_unitario)
+          FROM Pedido_Produto
+          WHERE pedido_id = NEW.pedido_id
+        )
+        WHERE pedido_id = NEW.pedido_id;
+      END;
+
+      CREATE TRIGGER IF NOT EXISTS atualizar_valor_total_delete
+      AFTER DELETE ON Pedido_Produto
+      BEGIN
+        UPDATE Pedido
+        SET valor_total = (
+          SELECT SUM(quantidade * preco_unitario)
+          FROM Pedido_Produto
+          WHERE pedido_id = OLD.pedido_id
+        )
+        WHERE pedido_id = OLD.pedido_id;
+      END;
+
+    ------------
+
+
 -- ===========================
 -- TRIGGERS PARA PEDIDO
 -- ===========================
@@ -281,7 +336,6 @@ export async function createTables() {
         await closeDB();
     }
 }
-
 
 
 

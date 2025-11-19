@@ -30,7 +30,7 @@ export class PedidoRepository {
     }
       static async findByIDCliente(id:number): Promise<Pedido[] | undefined> {
         const db = await getDB()
-        return await db.get(`SELECT * FROM Pedido WHERE cliente_id=?`,
+        return await db.all(`SELECT * FROM Pedido WHERE cliente_id=?`,
             [id]
         )
     
@@ -41,7 +41,7 @@ export class PedidoRepository {
     static async update(id:number, status:string):Promise <number>{
 
         const db = await getDB()
-        const result = await db.run(`UPDATE Pedido SET status=? WHERE pedido_id=?`,[id,status])
+        const result = await db.run(`UPDATE Pedido SET status=? WHERE pedido_id=?`,[status,id])
         return result.changes ?? 0
     }
 

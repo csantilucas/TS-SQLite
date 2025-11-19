@@ -26,7 +26,7 @@ export class CategoriaRepository {
     }
 
     //READ
-    static async findAll():Promise< Categoria[]| undefined>{
+    static async findAll():Promise<Categoria[]>{
         const db = await getDB()
         return await db.all(`SELECT * FROM Categoria`)
     }
@@ -37,5 +37,35 @@ export class CategoriaRepository {
         [id])
     }
 
+    static async findByName(name:string):Promise<Categoria | undefined>{
+        const db = await getDB()
+        return await db.get(`SELECT * FROM Categoria WHERE nome=?`,
+            [name])
+    }
 
+    //UPDATE
+
+    static async update(id:number, nome: string, descricao: string):Promise<number>{
+        const db = await getDB()
+        const result = await db.run(`UPDATE Categoria SET nome=?,descricao=? WHERE categoria_id=?`,
+            [nome,descricao, id]
+        )
+        return result.changes ?? 0
+    }
+
+    //DELETE
+
+    static async delete(id:number):Promise<number>{
+        const db = await getDB()
+        const result = await db.run(`DELETE FROM Categoria WHERE categoria_id=?`,
+            [id]
+        )
+        return result.changes ?? 0
+    }
 }
+
+
+// await CategoriaRepository.create('limpeza','produtos de limpeza')
+// await CategoriaRepository.create('tecnologia','produtos tecnologicos')
+// await CategoriaRepository.create('academia','produtos academia')
+CategoriaRepository.findAll().then(res => console.table(res))

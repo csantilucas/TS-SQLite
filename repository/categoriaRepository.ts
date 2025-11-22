@@ -33,13 +33,13 @@ export class CategoriaRepository {
 
     static async findByID(id:number):Promise<Categoria | undefined>{
         const db = await getDB()
-        return await db.get(`SELECT * FROM Categoria WHERE categoria_id = ?`,
+        return await db.all(`SELECT * FROM Categoria WHERE categoria_id = ?`,
         [id])
     }
 
     static async findByName(name:string):Promise<Categoria | undefined>{
         const db = await getDB()
-        return await db.get(`SELECT * FROM Categoria WHERE nome=?`,
+        return await db.all(`SELECT * FROM Categoria WHERE nome=?`,
             [name])
     }
 

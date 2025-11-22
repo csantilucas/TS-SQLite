@@ -35,4 +35,4 @@ export class ClienteService {
 }
 
 ClienteService.criar("João", "joao@email.com", "123456", "12345678900", "69999999999").then(res => console.log(res)).catch(erro =>{console.log(erro)})
-ClienteService.loginCliente('joao@email.com','123456').then(res => console.log(res))
+ClienteService.loginCliente('joao@email.com','123456').then(res => console.table(res))

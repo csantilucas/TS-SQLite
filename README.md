@@ -48,7 +48,6 @@ O banco contém  **no mínimo 5 tabelas** :
 * `projeto`: relacionada com `tarefa` (1:N)
 * `categoria`: relacionada com `projeto` (N:N via tabela intermediária)
 
-
 ## 🗄️ Estrutura do Banco de Dados
 
 ### **Tabela Cliente**
@@ -182,3 +181,8 @@ A interface de linha de comando permite:
    ```
    ts-node src/cli/index.ts
    ```
+
+**script rápido de reset** para você rodar sempre que trocar de sistema operacional (Windows ↔ Linux ↔ macOS). Assim você não precisa ficar apagando manualmente `node_modules` e `package-lock.json` toda vez.
+
+- npm-reset.bat   # no Windows
+- bash npm-reset.sh  # no Linux/macOS

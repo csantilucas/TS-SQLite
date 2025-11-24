@@ -52,7 +52,7 @@ export class ClienteRepository {
     }
 
     // ✅ FIND BY EMAIL
-    static async findByEmail(email: string): Promise<any | undefined> {
+    static async findByEmail(email: string): Promise<Cliente | undefined> {
         const db = await getDB();
         const cliente = await db.get(
             `SELECT * FROM Cliente WHERE email = ?`,

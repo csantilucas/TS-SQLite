@@ -93,6 +93,29 @@ CREATE TABLE IF NOT EXISTS logs (
     acao TEXT NOT NULL,
     data_hora DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+
+-- Trigger para diminuir estoque ao inserir um item no pedido
+CREATE TRIGGER atualizar_estoque_depois_insert
+AFTER INSERT ON PedidoItem
+FOR EACH ROW
+BEGIN
+    UPDATE Produto
+    SET estoque = estoque - NEW.quantidade
+    WHERE produto_id = NEW.produto_id;
+END;
+
+-- Trigger para restaurar estoque ao deletar item do pedido
+CREATE TRIGGER restaurar_estoque_depois_delete
+AFTER DELETE ON PedidoItem
+FOR EACH ROW
+BEGIN
+    UPDATE Produto
+    SET estoque = estoque + OLD.quantidade
+    WHERE produto_id = OLD.produto_id;
+END;
+
+
 `;
 const triggers =`
 
@@ -336,6 +359,8 @@ export async function createTables() {
         await closeDB();
     }
 }
+
+
 
 
 

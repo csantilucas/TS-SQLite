@@ -25,7 +25,7 @@ export class ProdutoRepository {
     }
 
     //READ
-    static async findAll():Promise<Produto[] | undefined>{
+    static async findAll():Promise<Produto[]>{
         const db = await getDB()
         const result = await db.all(`select * from Produto `)
         return result
@@ -39,7 +39,7 @@ export class ProdutoRepository {
         return result
     }
     //READ BY ID
-    static async findByID(id:number):Promise<Produto[] | undefined>{
+    static async findByID(id:number):Promise<Produto | undefined>{
         const db = await getDB()
         const result = await db.get(`SELECT * FROM Produto WHERE produto_id= ?`,
             [id]
@@ -57,6 +57,17 @@ export class ProdutoRepository {
         return result.changes ?? 0
 
     }
+
+    static async updateEstoque(id:number, estoque: number): Promise<number>{
+        const db = await getDB()
+        const result = await db.run(`UPDATE Produto SET estoque=? WHERE produto_id = ?`,
+            [estoque, id]
+        );
+        return result.changes ?? 0
+
+    }
+
+
     //DELETE
 
     static async delete(id:number): Promise<number>{

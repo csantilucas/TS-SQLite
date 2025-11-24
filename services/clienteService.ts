@@ -50,7 +50,7 @@ export class ClienteService {
 
 
     //atualizar senha
-    static async atualizarSenha(id: number, senha: string, email: string): Promise<string> {
+    static async atualizarSenha(id: number, senha: string, email: string): Promise<number> {
         if (!id) throw new Error("Dados ausentes (insira um id)");
         if (!senha) throw new Error("Dados ausentes (insira uma senha)");
         if (!email) throw new Error("Dados ausentes (insira um email)");
@@ -61,8 +61,8 @@ export class ClienteService {
         //criptografar antes de salvar
         const hash = hashSenha(senha);
 
-        await ClienteRepository.updatePassword(id, hash);
-        return "Senha alterada com sucesso";
+        const update = await ClienteRepository.updatePassword(id, hash);
+        return update;
     }
 
 
@@ -81,16 +81,16 @@ export class ClienteService {
 
     //deletar cliente
 
-    static async delete(email:string, senha:string):Promise<string>{
+    static async delete(email:string, senha:string):Promise<number >{
 
         const cliente = await ClienteRepository.findByEmail(email)
         if(!cliente) throw new Error ("Cliente nao encontrado")
         
         const senhaValida = compararSenha (senha, cliente.senha)
-        if(!senhaValida) return ('senha incorreta')
+        if(!senhaValida) throw new Error ('senha incorreta')
 
-        await ClienteRepository.delete(cliente.cliente_id)
-        return 'Usuario Deleteado com sucesso' 
+        const update = await ClienteRepository.delete(cliente.cliente_id)
+        return update 
     }
 
 

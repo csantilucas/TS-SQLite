@@ -42,6 +42,8 @@ export class PedidoRepository {
     return result.changes ?? 0
   }
 
+  
+
   //DELETE
 
   static async delete(id: number): Promise<number> {

@@ -1,6 +1,7 @@
 import { describe } from "node:test";
 import { Produto } from "../models/modelProduto";
 import { ProdutoRepository } from "../repository/produtoRepository";
+import { PedidoRepository } from "../repository/pedidoRepository";
 
 export class ProdutoService {
   // Criar Produto
@@ -58,3 +59,8 @@ export class ProdutoService {
     return "Produto deletado com sucesso";
   }
 }
+
+
+//ProdutoRepository.create('Placa de video','placa de video', 2000, 20)
+// ProdutoService.criar('Placa de video','placa de video', 2000, 20)
+// ProdutoService.listar().then(res=>console.table(res))

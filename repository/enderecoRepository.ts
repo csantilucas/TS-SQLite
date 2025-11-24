@@ -35,9 +35,14 @@ EnderecoRepository {
         return await db.all(`SELECT * FROM Endereco`)
     }
 
-    static async findByIDCliente(id:number):Promise<Endereco | undefined>{
+    static async findById(id:number):Promise<Endereco[]>{
         const db = await getDB()
-        return await db.get(`SELECT * FROM Endereco WHERE cliente_id=?`,
+        return await db.all(`SELECT * FROM Endereco where endereco_id=?`,[id])
+    }
+
+    static async findByClienteId(id:number):Promise<Endereco[]>{
+        const db = await getDB()
+        return await db.all(`SELECT * FROM Endereco WHERE cliente_id=?`,
             [id])
     }
 
@@ -67,5 +72,5 @@ EnderecoRepository {
 
 //EnderecoRepository.create(2,'rua dos parecis','jardim america', '4323454', '2341','casa de esquina').then(res=> {console.log(res)})
 
-EnderecoRepository.findAll().then(res => console.table(res))
-EnderecoRepository.findByIDCliente(2).then(res=>console.table(res))
+// EnderecoRepository.findAll().then(res => console.table(res))
+// EnderecoRepository.findByClienteId(2).then(res=>console.table(res))

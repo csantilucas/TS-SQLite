@@ -39,7 +39,7 @@ export class CategoriaRepository {
 
     static async findByName(name:string):Promise<Categoria | undefined>{
         const db = await getDB()
-        return await db.all(`SELECT * FROM Categoria WHERE nome=?`,
+        return await db.get(`SELECT * FROM Categoria WHERE nome=?`,
             [name])
     }
 
@@ -64,8 +64,3 @@ export class CategoriaRepository {
     }
 }
 
-
-// await CategoriaRepository.create('limpeza','produtos de limpeza')
-// await CategoriaRepository.create('tecnologia','produtos tecnologicos')
-// await CategoriaRepository.create('academia','produtos academia')
-CategoriaRepository.findAll().then(res => console.table(res))

@@ -83,24 +83,24 @@ export class ProdutoRepository {
 //testes
 
 
-ProdutoRepository.create("Produto Teste","Descricao Teste",100,50)
-    .then(async (id) => {
-        console.log(`Produto criado com ID: ${id}`);
+// ProdutoRepository.create("Produto Teste","Descricao Teste",100,50)
+//     .then(async (id) => {
+//         console.log(`Produto criado com ID: ${id}`);
 
 
-        console.table(await ProdutoRepository.findAll());
-        const produto = await ProdutoRepository.findByID(id);
-        console.log("Produto encontrado:", produto);
+//         console.table(await ProdutoRepository.findAll());
+//         const produto = await ProdutoRepository.findByID(id);
+//         console.log("Produto encontrado:", produto);
 
-        await ProdutoRepository.update(id, "Produto Atualizado", "Descricao Atualizada", 150, 30);
-        console.log("Produto atualizado.");
+//         await ProdutoRepository.update(id, "Produto Atualizado", "Descricao Atualizada", 150, 30);
+//         console.log("Produto atualizado.");
 
-        const produtos = await ProdutoRepository.findAll();
-        console.log("Todos os produtos:", produtos);
-    })
-    .catch((error) => {
-        console.error("Erro durante os testes do ProdutoRepository:", error);
-    })
-    .finally(() => {
-        closeDB();
-    });
+//         const produtos = await ProdutoRepository.findAll();
+//         console.log("Todos os produtos:", produtos);
+//     })
+//     .catch((error) => {
+//         console.error("Erro durante os testes do ProdutoRepository:", error);
+//     })
+//     .finally(() => {
+//         closeDB();
+//     });

@@ -49,7 +49,7 @@ export class EnderecoService {
 
     // Deletar Endereço
     static async delete(id: number): Promise<string> {
-        if (!id) throw new Error("Dados ausentes (insira o id)");
+        if (!id) throw new Error("erro ao exluir o endereco. Dados ausentes (insira o id)");
 
         const update = await EnderecoRepository.delete(id);
         if (update == 0) throw new Error("Endereço não encontrado");
@@ -62,22 +62,22 @@ export class EnderecoService {
 
 
 
-(async () => {
-  try {
-    const enderecoId = await EnderecoService.criar(
-      3, // clienteId (exemplo: cliente com id 1)
-      "Av. Brasil", // rua
-      "1234",       // número
-      "Vilhena",    // cidade
-      "RO",         // estado
-      "76980-000"   // cep
-    );
+// (async () => {
+//   try {
+//     const enderecoId = await EnderecoService.criar(
+//       3, // clienteId (exemplo: cliente com id 1)
+//       "Av. Brasil", // rua
+//       "1234",       // número
+//       "Vilhena",    // cidade
+//       "RO",         // estado
+//       "76980-000"   // cep
+//     );
 
-    console.log("Endereço criado com ID:", enderecoId);
-  } catch (error: any) {
-    console.error("Erro:", error.message);
-  }
-})();
+//     console.log("Endereço criado com ID:", enderecoId);
+//   } catch (error: any) {
+//     console.error("Erro:", error.message);
+//   }
+// })();
 
 
-EnderecoService.listar().then(res => console.table(res))
+// EnderecoService.listar().then(res => console.table(res))

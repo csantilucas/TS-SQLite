@@ -1,5 +1,5 @@
 export interface Endereco{
-    enderco_id:number,
+    endereco_id:number,
     cliente_id:number,
     rua:string,
     bairro:string,

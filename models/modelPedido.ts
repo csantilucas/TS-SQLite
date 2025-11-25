@@ -1,5 +1,5 @@
 export interface Pedido{
-    id:number,
+    pedido_id:number,
     cliente_id:number,
     data:Date,
     status:string,

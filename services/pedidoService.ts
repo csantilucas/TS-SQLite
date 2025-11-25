@@ -65,5 +65,5 @@ export class PedidoService {
 //PedidoService.findByClienteId(3)
 //PedidoService.deleteByCliente(3)
 
-PedidoService.listar().then(res => console.table(res))
+//PedidoService.listar().then(res => console.table(res))
 

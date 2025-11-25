@@ -13,5 +13,6 @@ npm init -y
 
 echo 📦 Instalando dependências...
 npm install tsx typescript @types/node sqlite3 sqlite --no-optional
+npm install sqlite3 --build-from-source
 
 echo ✅ Ambiente resetado e pacotes reinstalados!

@@ -27,6 +27,23 @@ export class ClienteService {
         return clienteId ?? 0;
     }
 
+    //READ
+
+
+    static async findByEmail(email:string){
+        if (!email) throw new Error("Nao foi possivel encontrar o usuario. Dados ausentes (insira um email)")
+        ClienteRepository.findByEmail(email)
+    }
+
+    static async findById(id:number){
+        if (!id) throw new Error("Nao foi possivel encontrar o usuario. Dados ausentes (insira uma id)")
+        ClienteRepository.findByID(id)
+    }
+    static async findByName(nome:string){
+        if (!nome) throw new Error("Nao foi possivel encontrar o usuario. Dados ausentes (insira um nome)")
+        ClienteRepository.findByName(nome)
+    }
+
 
     //Update Cliente
 
@@ -50,11 +67,11 @@ export class ClienteService {
     //atualizar senha
     static async atualizarSenha(id: number, senha: string, email: string): Promise<number> {
         if (!id) throw new Error("Dados ausentes (insira um id)");
-        if (!senha) throw new Error("Dados ausentes (insira uma senha)");
-        if (!email) throw new Error("Dados ausentes (insira um email)");
+        if (!senha) throw new Error("Nao foi possivel atualizar a senha. Dados ausentes (insira uma senha)");
+        if (!email) throw new Error("Nao foi possivel atualizar a senha. Dados ausentes (insira um email)");
 
         const cliente = await ClienteRepository.findByEmail(email);
-        if (!cliente) throw new Error("Cliente não encontrado");
+        if (!cliente) throw new Error("Cliente não encontrado, email ou senha incorreto");
 
         //criptografar antes de salvar
         const hash = hashSenha(senha);

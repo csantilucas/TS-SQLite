@@ -33,7 +33,7 @@ export class ProdutoCategoriaService {
 
   // Deletar relação
   static async delete(id: number): Promise<string> {
-    if (!id) throw new Error("Dados ausentes (insira o id)");
+    if (!id) throw new Error("Erro ao excluir o pedido. Dados ausentes (insira o id)");
 
     const linhasAfetadas = await ProdutoCategoriaRepository.delete(id);
     if (linhasAfetadas === 0) throw new Error("Relação produto-categoria não encontrada");

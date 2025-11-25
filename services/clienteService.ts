@@ -30,18 +30,19 @@ export class ClienteService {
     //READ
 
 
-    static async findByEmail(email:string){
+    static async findByEmail(email: string): Promise<Cliente |undefined> {
         if (!email) throw new Error("Nao foi possivel encontrar o usuario. Dados ausentes (insira um email)")
-        ClienteRepository.findByEmail(email)
+        return ClienteRepository.findByEmail(email)
+
     }
 
-    static async findById(id:number){
+    static async findById(id: number):Promise<Cliente | undefined> {
         if (!id) throw new Error("Nao foi possivel encontrar o usuario. Dados ausentes (insira uma id)")
-        ClienteRepository.findByID(id)
+        return ClienteRepository.findByID(id)
     }
-    static async findByName(nome:string){
+    static async findByName(nome: string):Promise<Cliente | undefined> {
         if (!nome) throw new Error("Nao foi possivel encontrar o usuario. Dados ausentes (insira um nome)")
-        ClienteRepository.findByName(nome)
+        return ClienteRepository.findByName(nome)
     }
 
 
@@ -96,16 +97,16 @@ export class ClienteService {
 
     //deletar cliente
 
-    static async delete(email:string, senha:string):Promise<number >{
+    static async delete(email: string, senha: string): Promise<number> {
 
         const cliente = await ClienteRepository.findByEmail(email)
-        if(!cliente) throw new Error ("Cliente nao encontrado")
-        
-        const senhaValida = compararSenha (senha, cliente.senha)
-        if(!senhaValida) throw new Error ('senha incorreta')
+        if (!cliente) throw new Error("Cliente nao encontrado")
+
+        const senhaValida = compararSenha(senha, cliente.senha)
+        if (!senhaValida) throw new Error('senha incorreta')
 
         const update = await ClienteRepository.delete(cliente.cliente_id)
-        return update 
+        return update
     }
 
 

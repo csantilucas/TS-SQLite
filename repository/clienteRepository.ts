@@ -36,7 +36,7 @@ export class ClienteRepository {
         return await db.all(`SELECT * FROM Cliente`);
     }
 
-    static async findByName(nome: string): Promise<Cliente[] | undefined> {
+    static async findByName(nome: string): Promise<Cliente | undefined> {
         const db = await getDB()
         const result = await db.get(`SELECT * FROM Cliente WHERE nome= ?`,
             [nome]
@@ -44,7 +44,7 @@ export class ClienteRepository {
         return result
     }
 
-    static async findByID(id: number): Promise<Cliente[] | undefined> {
+    static async findByID(id: number): Promise<Cliente | undefined> {
         const db = await getDB()
         return await db.get(`SELECT * FROM Cliente WHERE cliente_id= ?`,
             [id]

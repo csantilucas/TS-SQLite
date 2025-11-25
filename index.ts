@@ -79,15 +79,18 @@ async function menuCliente() {
                 break;
 
             case "5":
-
                 const emailSenha = await ask("Email: ");
                 const novaSenha = await ask("Nova senha: ");
 
-                // verficar sempre se o id do cliente esta vazio ou qualquer outro antes de inserir usando o id
                 if (clienteId !== null) {
                     await ClienteController.atualizarSenha(clienteId, novaSenha, emailSenha);
                 } else {
-                    console.error("❌ Nenhum clienteId disponível. Crie ou logue um cliente primeiro.");
+                    const cliente = await ClienteService.findByEmail(emailSenha);
+                    if (cliente) {
+                        await ClienteController.atualizarSenha(cliente.cliente_id, novaSenha, emailSenha);
+                    } else {
+                        console.error("❌ Cliente não encontrado para atualizar senha");
+                    }
                 }
                 break;
 

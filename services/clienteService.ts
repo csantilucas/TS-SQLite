@@ -1,6 +1,4 @@
 // service do cliente
-
-import { error } from "console";
 import { Cliente } from "../models/modelCliente";
 import { ClienteRepository } from "../repository/clienteRepository";
 import { compararSenha, hashSenha } from "../utils/cryptoHash";

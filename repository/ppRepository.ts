@@ -35,6 +35,12 @@ export class ppRepository {
     return await db.all(`SELECT * FROM Pedido_Produto WHERE pedido_id = ?`, [pedido_id]);
   }
 
+  static async find(id_pedido: number,id_produto): Promise<PP | undefined> {
+    const db = await getDB();
+    return await db.all(`SELECT * FROM Pedido_Produto WHERE pedido_id = ?, produto_id:?`, [id_pedido,id_produto]);
+  }
+
+
   // UPDATE
   static async update(pedido_id: number, produto_id: number, quant: number, preco: number): Promise<number> {
     const db = await getDB();
@@ -46,11 +52,21 @@ export class ppRepository {
   }
 
   // DELETE
-  static async delete(pedido_id: number, produto_id: number): Promise<number> {
+  static async delete(pedido_id: number, produto_id:number): Promise<number> {
     const db = await getDB();
     const result = await db.run(
-      `DELETE FROM Pedido_Produto WHERE pedido_id = ? AND produto_id = ?`,
+      `DELETE FROM Pedido_Produto WHERE pedido_id = ?, produto_id`,
       [pedido_id, produto_id]
+    );
+    return result.changes ?? 0;
+  }
+
+
+  static async deleteByPedido(pedido_id: number): Promise<number> {
+    const db = await getDB();
+    const result = await db.run(
+      `DELETE FROM Pedido_Produto WHERE pedido_id = ?0`,
+      [pedido_id]
     );
     return result.changes ?? 0;
   }

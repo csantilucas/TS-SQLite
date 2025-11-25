@@ -20,7 +20,7 @@ export class PedidoProdutoService {
   static async atualizar(id: number,pedidoId: number, produtoId: number,quantidade: number,precoUnitario: number): Promise<number> {
     if (!id) throw new Error("Dados ausentes (insira o id)");
 
-    const pedidoProduto = await ppRepository.findById(id);
+    const pedidoProduto = await ppRepository.findByPedido(id);
     if (!pedidoProduto) throw new Error("Item do pedido não encontrado");
 
     if (!pedidoId) throw new Error("Dados ausentes (insira o pedidoId)");
@@ -28,16 +28,16 @@ export class PedidoProdutoService {
     if (!quantidade) throw new Error("Dados ausentes (insira a quantidade)");
     if (!precoUnitario) throw new Error("Dados ausentes (insira o preço unitário)");
 
-    const update = await ppRepository.update(id,pedidoId, produtoId,quantidade,precoUnitario);
+    const update = await ppRepository.update(pedidoId, produtoId, quantidade,precoUnitario);
     if (update === 0) throw new Error("Item do pedido não encontrado");
 
     return update;
   }
 
   // Buscar item por ID
-  static async findById(id: number): Promise<PP | undefined> {
+  static async findByPedido(id: number): Promise<PP[]> {
     if (!id) throw new Error("Dados ausentes (insira o id)");
-    return await ppRepository.findById(id);
+    return await ppRepository.findByPedido(id);
   }
 
   // Listar todos os itens de pedidos
@@ -45,19 +45,24 @@ export class PedidoProdutoService {
     return await ppRepository.findAll();
   }
 
-  // Buscar itens de um pedido específico
-  static async findByPedidoId(pedidoId: number): Promise<PP[]> {
-    if (!pedidoId) throw new Error("Dados ausentes (insira o pedidoId)");
-    return await ppRepository.findByPedido(pedidoId);
-  }
-
+ 
   // Deletar item de pedido
-  static async delete(id: number): Promise<string> {
-    if (!id) throw new Error("Dados ausentes (insira o id)");
-
-    const linhasAfetadas = await ppRepository.delete(id);
-    if (linhasAfetadas === 0) throw new Error("Item do pedido não encontrado");
-
+  static async delete(pedidoId: number, produtoId: number): Promise<string> {
+    if (!pedidoId) throw new Error("Dados ausentes (insira o pedidoId)");
+    if (!produtoId) throw new Error("Dados ausentes (insira o produtoId)");
+  
+    const update = await ppRepository.delete(pedidoId, produtoId);
+    if (update == 0) throw new Error("Item do pedido não encontrado");
+  
     return "Item do pedido deletado com sucesso";
   }
+
+  static async deleteByPedido(pedidoId: number): Promise<string> {
+    if (!pedidoId) throw new Error("Dados ausentes (insira o pedidoId)");
+    const update = await ppRepository.deleteByPedido(pedidoId);
+    if (update == 0) throw new Error("Item do pedido não encontrado");
+  
+    return "Item do pedido deletado com sucesso";
+  }
+  
 }

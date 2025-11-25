@@ -35,7 +35,7 @@ export class ppRepository {
     return await db.all(`SELECT * FROM Pedido_Produto WHERE pedido_id = ?`, [pedido_id]);
   }
 
-  static async find(id_pedido: number,id_produto): Promise<PP | undefined> {
+  static async find(id_pedido: number,id_produto:number): Promise<PP | undefined> {
     const db = await getDB();
     return await db.all(`SELECT * FROM Pedido_Produto WHERE pedido_id = ?, produto_id:?`, [id_pedido,id_produto]);
   }

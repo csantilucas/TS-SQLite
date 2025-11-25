@@ -184,12 +184,11 @@ A interface de linha de comando permite:
 
 **script rápido de reset** para você rodar sempre que trocar de sistema operacional (Windows ↔ Linux ↔ macOS). Assim você não precisa ficar apagando manualmente `node_modules` e `package-lock.json` toda vez.
 
-
 - bash npm-reset.sh  # no Linux/macOS
 - npm-reset.bat   # no Windows
-rm -r node_modules
-del package-lock.json
-del package.json
-npm cache clean --force
-npm init -y
-npm install tsx typescript @types/node sqlite3 sqlite --no-optional
+  rm -r node_modules
+  del package-lock.json
+  del package.json
+  npm cache clean --force
+  npm init -y
+  npm install tsx typescript @types/node sqlite3 sqlite --no-optional

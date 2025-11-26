@@ -2,6 +2,9 @@ import readline from "readline";
 import { ClienteController } from "./controllers/clienteControler";
 import { ClienteService } from "./services/clienteService";
 import { Cliente } from "./models/modelCliente";
+import { Administrador } from "./models/modelAdminstrador";
+import { ClienteRepository } from "./repository/clienteRepository";
+import { AdministradorController } from "./controllers/admintradorControle";
 
 async function menuCliente() {
     const rl = readline.createInterface({
@@ -15,23 +18,32 @@ async function menuCliente() {
 
     let exit = false;
     let cliente: Cliente | undefined = undefined
+    let adm: Administrador | undefined = undefined
 
     while (!exit) {
-        if (!cliente) {
+        if (!cliente && !adm) {// nenhum logado
 
             console.log("\n=== MENU CLIENTE ===");
             console.log("1 - Logar");
-            console.log("2 - Crir login");
+            console.log("2 - logar adm")
+            console.log("3 - Crir login");
+
             const opcao = await ask("Escolha uma opção: ");
 
-            switch (opcao) {
+            switch (opcao) {//submenu
                 case "1"://logar
                     const emailLogin = await ask("Email: ");
                     const senhaLogin = await ask("Senha: ");
                     cliente = await ClienteController.logar(emailLogin, senhaLogin)
                     break
 
-                case "2"://criar
+                case "2"://logar adm
+                    const Email = await ask("Email: ");
+                    const Senha = await ask("Senha: ");
+                    adm = await AdministradorController.logar(Email, Senha)
+                    break
+
+                case "3"://criar
                     const nome = await ask("Nome: ");
                     const email = await ask("Email: ");
                     const senha = await ask("Senha: ");
@@ -52,14 +64,14 @@ async function menuCliente() {
                     break;
             }
 
-        } else {
+        } else if (cliente && !adm) {//cliente
             //menu
             console.log("1 - meus dados");
             console.log("2 - ver produtos");
             console.log("0 - Sair");
             const opcao1 = await ask("Escolha uma opção: ");
 
-            switch (opcao1) {
+            switch (opcao1) {//submenu
 
 
                 case "1"://meu dados
@@ -110,15 +122,46 @@ async function menuCliente() {
                     break
 
 
-                case "2":
+                case "2":// produtos
                     console.log("falta cadastrar os produtos")
                     break
+
+
+
+
 
                 case "0"://sair
                     console.log("Logof...");
                     cliente = undefined
 
 
+                    break;
+
+                default:
+                    console.log("❌ Opção inválida");
+            }
+        } else if (adm && !cliente) {
+            console.log("\n=== MENU ADMINISTRADOR ===");
+            console.log("1 - Ver todos os clientes");
+            console.log("2 - Ver produtos");
+            console.log("0 - Logout");
+
+            const opcao = await ask("Escolha uma opção: ");
+            switch (opcao) {
+                case "1":
+                    const clientes = await ClienteRepository.findAll();
+                    console.table(clientes);
+                    break;
+
+                case "2":
+                    console.log("📦 Em breve: listagem de produtos");
+                    break;
+
+            
+
+                case "0":
+                    console.log("Logout administrador realizado");
+                    adm = undefined;
                     break;
 
                 default:

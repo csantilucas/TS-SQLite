@@ -1,6 +1,5 @@
 import { PedidoService } from "../services/pedidoService";
 import { PedidoProdutoService } from "../services/ppService";
-import { ProdutoCategoriaService } from "../services/pcService";
 
 export enum StatusPedido {
     ABERTO = "pedido em aberto",
@@ -10,11 +9,11 @@ export enum StatusPedido {
 
 export class PedidoController {
 
-    // Criar pedido com produtos e vincular categorias
+    // Criar pedido com produtos
     static async criar(
         clienteId: number,
         status: StatusPedido,
-        produtos: { produtoId: number, quantidade: number, preco: number, categoriaId: number }[]
+        produtos: { produtoId: number, quantidade: number, preco: number }[]
     ) {
         try {
             // calcula o total do pedido
@@ -24,16 +23,12 @@ export class PedidoController {
             const pedidoId = await PedidoService.criar(clienteId, status, total);
             console.log("✅ Pedido criado com sucesso. ID:", pedidoId);
 
-            // vincula os produtos ao pedido e suas categorias
+            // vincula os produtos ao pedido
             for (const item of produtos) {
-                // vincula produto ao pedido
                 await PedidoProdutoService.criar(pedidoId, item.produtoId, item.quantidade, item.preco);
-
-                // vincula produto à categoria
-                await ProdutoCategoriaService.criar(item.produtoId, item.categoriaId);
             }
 
-            console.log("✅ Produtos e categorias vinculados ao pedido");
+            console.log("✅ Produtos vinculados ao pedido");
             return { pedidoId };
         } catch (error: any) {
             console.error("Erro ao criar pedido:", error.message);
@@ -58,21 +53,14 @@ export class PedidoController {
                 const pedidos = await PedidoService.findByClienteId(clienteId);
                 if (!pedidos || pedidos.length === 0) {
                     console.log("Nenhum pedido encontrado para este cliente");
-                    return [];
+                    return;
                 }
 
+                // para cada pedido, buscar produtos vinculados
                 const resultado = [];
                 for (const pedido of pedidos) {
                     const produtos = await PedidoProdutoService.findByPedido(pedido.pedido_id);
-
-                    // para cada produto, buscar categorias vinculadas
-                    const produtosComCategoria = [];
-                    for (const p of produtos) {
-                        const categorias = await ProdutoCategoriaService.categoriasDoProduto(p.produto_id);
-                        produtosComCategoria.push({ ...p, categorias });
-                    }
-
-                    resultado.push({ pedido, produtos: produtosComCategoria });
+                    resultado.push({ pedido, produtos });
                 }
 
                 console.log("Pedidos encontrados:", resultado);
@@ -87,25 +75,17 @@ export class PedidoController {
     static async buscarPorId(pedidoId: number | undefined) {
         if (pedidoId) {
             try {
-                const pedido = await PedidoService.findById(pedidoId);
+                const pedido = await PedidoService.deleteByCliente(pedidoId);
                 if (!pedido) {
                     console.log("Pedido não encontrado");
-                    return null;
+                    return;
                 }
 
                 const produtos = await PedidoProdutoService.findByPedido(pedidoId);
-
-                // buscar categorias de cada produto
-                const produtosComCategoria = [];
-                for (const p of produtos) {
-                    const categorias = await ProdutoCategoriaService.categoriasDoProduto(p.produto_id);
-                    produtosComCategoria.push({ ...p, categorias });
-                }
-
                 console.log("Pedido encontrado:", pedido);
-                console.table(produtosComCategoria);
+                console.table(produtos);
 
-                return { pedido, produtos: produtosComCategoria };
+                return { pedido, produtos };
             } catch (error: any) {
                 console.error("Erro ao buscar pedido por ID:", error.message);
             }
@@ -128,26 +108,27 @@ export class PedidoController {
     }
 
     // Atualizar pedido (ex: atualizar produtos vinculados)
-    static async atualizar(
-        pedidoId: number,
-        produtos: { produtoId: number, quantidade: number, preco: number, categoriaId: number }[]
-    ) {
-        try {
-            // remove os produtos antigos
-            const antigos = await PedidoProdutoService.findByPedido(pedidoId);
-            for (const item of antigos) {
-                await PedidoProdutoService.delete(item.pedido_id, item.produto_id);
-            }
-
-            // adiciona os novos e vincula categorias
-            for (const item of produtos) {
-                await PedidoProdutoService.criar(pedidoId, item.produtoId, item.quantidade, item.preco);
-                await ProdutoCategoriaService.criar(item.produtoId, item.categoriaId);
-            }
-
-            console.log("✅ Pedido atualizado com sucesso");
-        } catch (error: any) {
-            console.error("Erro ao atualizar pedido:", error.message);
+static async atualizar(
+    pedidoId: number,
+    produtos: { produtoId: number, quantidade: number, preco: number }[]
+) {
+    try {
+        // remove os produtos antigos
+        const antigos = await PedidoProdutoService.findByPedido(pedidoId);
+        for (const item of antigos) {
+            await PedidoProdutoService.delete(item.pedido_id, item.produto_id);
         }
+
+        // adiciona os novos
+        for (const item of produtos) {
+            await PedidoProdutoService.criar(pedidoId, item.produtoId, item.quantidade, item.preco);
+        }
+
+ 
+        console.log("✅ Pedido atualizado com sucesso");
+    } catch (error: any) {
+        console.error("Erro ao atualizar pedido:", error.message);
     }
+}
+
 }

@@ -26,13 +26,18 @@ export class PedidoService {
         return linhasAfetadas;
     }
 
-    // Buscar Pedido por ID
+    // Buscar Pedido por ID do cliente
     static async findByClienteId(id: number): Promise<Pedido[]> {
         if (!id) throw new Error("Dados ausentes (insira o id)");
         const pedidos = await PedidoRepository.findByClienteId(id);
         return pedidos
     }
-
+    // Buscar Pedido por ID do cliente
+    static async findById(id: number): Promise<Pedido | undefined> {
+        if (!id) throw new Error("Dados ausentes (insira o id)");
+        const pedido = await PedidoRepository.findById(id);
+        return pedido;
+    }
 
     // Listar todos os pedidos
     static async listar(): Promise<Pedido[]> {
@@ -49,7 +54,7 @@ export class PedidoService {
         return "Pedido deletado com sucesso";
     }
 
-     static async deleteByCliente(id: number): Promise<string> {
+    static async deleteByCliente(id: number): Promise<string> {
         if (!id) throw new Error("Dados ausentes (insira o id)");
 
         const pedidos = await PedidoRepository.deleteByCliente(id);

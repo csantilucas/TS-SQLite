@@ -33,6 +33,14 @@ export class PedidoRepository {
     return await db.all(`SELECT * FROM Pedido WHERE cliente_id=?`, [id])
   }
 
+  static async findById(id: number): Promise<Pedido | undefined> {
+    if (!id) throw new Error("Dados ausentes (insira o id)");
+    const db = await getDB();
+    const pedido = await db.get(`SELECT * FROM Pedido WHERE pedido_id=?`, [id]);
+    return pedido;
+}
+
+
   //UPDATE
 
   static async update(id: number, status: string): Promise<number> {

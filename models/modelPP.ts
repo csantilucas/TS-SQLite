@@ -4,3 +4,10 @@ export interface PP{
     quantidade:number
     valor_unitario:number
 }
+
+enum StatusPedido {
+    ABERTO = "pedido em aberto",
+    PENDENTE = "pedido em pendencia",
+    FINALIZADO = "pedido concluido"
+}
+

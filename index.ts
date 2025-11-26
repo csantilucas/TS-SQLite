@@ -81,6 +81,8 @@ async function menuCliente() {
             case "5":
                 const emailSenha = await ask("Email: ");
                 const novaSenha = await ask("Nova senha: ");
+                
+                await ClienteController.atualizarSenha(clienteId, novaSenha, emailSenha);
 
                 if (clienteId !== null) {
                     await ClienteController.atualizarSenha(clienteId, novaSenha, emailSenha);

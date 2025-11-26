@@ -3,10 +3,13 @@ import { EnderecoService } from "../services/enderecoService";
 import { PedidoService } from "../services/pedidoService";
 import { PedidoProdutoService } from "../services/ppService";
 
+//Lembrar de adicionar a verificaçao do id e definir como id:number|null
 
 export class ClienteController {
 
     static async criar(nome: string, email: string, senha: string, cpf: string, telefone: string, rua: string, numero: string, cidade: string, estado: string, cep: string) {
+
+
         try {
             const clienteId = await ClienteService.criar(nome, email, senha, cpf, telefone);
             let enderecoId: number | null = null
@@ -37,34 +40,41 @@ export class ClienteController {
     }
 
 
-    static async atualizarDados(id: number, nome: string, email: string, telefone: string) {
-
-        try {
-            await ClienteService.atualizar(id, nome, email, telefone)
-        } catch (error: any) {
-            console.error("erro ao atulizar dados:", error.message)
+    static async atualizarDados(id: number | null, nome: string, email: string, telefone: string) {
+        
+        if (id !== null) {
+            try {
+                await ClienteService.atualizar(id, nome, email, telefone)
+            } catch (error: any) {
+                console.error("erro ao atulizar dados:", error.message)
+            }
         }
 
 
     }
 
 
-    static async atualizarSenha(id:number,senha:string,email:string){
+    static async atualizarSenha(id: number | null, senha: string, email: string) {
 
-          try {
-            await ClienteService.atualizarSenha(id,senha,email)
-        } catch (error: any) {
-            console.error("erro ao atulizar dados:", error.message)
+        if (id !== null) {
+            try {
+
+                await ClienteService.atualizarSenha(id, senha, email)
+            } catch (error: any) {
+                console.error("erro ao atulizar dados:", error.message)
+            }
         }
 
     }
 
 
-    static async atualizarEndereco(id: number, clienteId: number, rua: string, numero: string, cidade: string, estado: string, cep: string) {
-        try {
-            await EnderecoService.atualizar(id, clienteId, rua, numero, cidade, estado, cep)
-        } catch (error: any) {
-            console.log("erro ao atulizar dados:", error.message)
+    static async atualizarEndereco(id: number | number, clienteId: number, rua: string, numero: string, cidade: string, estado: string, cep: string) {
+        if (id !== null) {
+            try {
+                await EnderecoService.atualizar(id, clienteId, rua, numero, cidade, estado, cep)
+            } catch (error: any) {
+                console.log("erro ao atulizar dados:", error.message)
+            }
         }
     }
 

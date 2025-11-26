@@ -28,8 +28,7 @@ export class ClienteController {
         }
     }
 
-
-
+    
     static async logar(email: string, senha: string) {
 
         try {

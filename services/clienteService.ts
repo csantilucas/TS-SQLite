@@ -33,7 +33,6 @@ export class ClienteService {
     static async findByEmail(email: string): Promise<Cliente |undefined> {
         if (!email) throw new Error("Nao foi possivel encontrar o usuario. Dados ausentes (insira um email)")
         return ClienteRepository.findByEmail(email)
-
     }
 
     static async findById(id: number):Promise<Cliente | undefined> {

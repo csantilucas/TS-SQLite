@@ -1,10 +1,10 @@
 import readline from "readline";
-import { ClienteController } from "./controllers/clienteControler";
+import { ClienteController } from "./controllers/clienteController";
 import { ClienteService } from "./services/clienteService";
 import { Cliente } from "./models/modelCliente";
 import { Administrador } from "./models/modelAdminstrador";
 import { ClienteRepository } from "./repository/clienteRepository";
-import { AdministradorController } from "./controllers/admintradorControle";
+import { AdministradorController } from "./controllers/admintradorControlle";
 
 async function menuCliente() {
     const rl = readline.createInterface({

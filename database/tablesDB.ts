@@ -13,6 +13,26 @@ db.all  ->  executar querys
 
 const tables = `
 
+-- Tabela de Administradores
+CREATE TABLE administrador (
+    administrador_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    senha TEXT NOT NULL,
+    criado_em DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabela de Log
+CREATE TABLE log_administrador (
+    log_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    administrador_id INTEGER,
+    acao TEXT,
+    data DATETIME DEFAULT CURRENT_TIMESTAMP,
+    detalhes TEXT,
+    FOREIGN KEY (administrador_id) REFERENCES administrador(administrador_id)
+);
+
+
 -- Tabela: Endereco
 CREATE TABLE IF NOT EXISTS Endereco (
     endereco_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -345,6 +365,36 @@ END;
 
 `
 
+const triggersAdm=`
+
+
+-- Trigger para INSERT
+CREATE TRIGGER trg_insert_administrador
+AFTER INSERT ON administrador
+BEGIN
+    INSERT INTO log_administrador(administrador_id, acao, detalhes)
+    VALUES (NEW.administrador_id, 'INSERT', 'Administrador criado');
+END;
+
+-- Trigger para UPDATE
+CREATE TRIGGER trg_update_administrador
+AFTER UPDATE ON administrador
+BEGIN
+    INSERT INTO log_administrador(administrador_id, acao, detalhes)
+    VALUES (NEW.administrador_id, 'UPDATE', 'Administrador atualizado');
+END;
+
+-- Trigger para DELETE
+CREATE TRIGGER trg_delete_administrador
+AFTER DELETE ON administrador
+BEGIN
+    INSERT INTO log_administrador(administrador_id, acao, detalhes)
+    VALUES (OLD.administrador_id, 'DELETE', 'Administrador removido');
+END;
+
+
+`
+
 
 export async function createTables() {
     const db = await getDB();
@@ -352,6 +402,7 @@ export async function createTables() {
     try {
         await db.exec(tables);
         await db.exec(triggers);
+        await db.exec(triggersAdm)
         console.log("Tabelas criadas com sucesso!");
     } catch (error) {
         console.error("Erro ao criar tabelas:", error);

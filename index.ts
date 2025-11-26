@@ -1,6 +1,7 @@
 import readline from "readline";
 import { ClienteController } from "./controllers/clienteControler";
 import { ClienteService } from "./services/clienteService";
+import { Cliente } from "./models/modelCliente";
 
 async function menuCliente() {
     const rl = readline.createInterface({
@@ -13,105 +14,118 @@ async function menuCliente() {
     }
 
     let exit = false;
-
-
-    let clienteId: number | null = null
-    let clienteEmail: string | null = null
-    let clienteEndereoco: number | null = null
+    let cliente: Cliente | undefined = undefined
 
     while (!exit) {
-        console.log("\n=== MENU CLIENTE ===");
-        console.log("1 - Criar Cliente");
-        console.log("2 - Logar Cliente");
-        console.log("3 - Atualizar Dados");
-        console.log("4 - Atualizar Endereço");
-        console.log("5 - Atualizar Senha");
-        console.log("6 - Deletar Cliente");
-        console.log("0 - Sair");
+        if (!cliente) {
 
-        const opcao = await ask("Escolha uma opção: ");
+            console.log("\n=== MENU CLIENTE ===");
+            console.log("1 - Logar");
+            console.log("2 - Crir login");
+            const opcao = await ask("Escolha uma opção: ");
 
+            switch (opcao) {
+                case "1"://logar
+                    const emailLogin = await ask("Email: ");
+                    const senhaLogin = await ask("Senha: ");
+                    cliente = await ClienteController.logar(emailLogin, senhaLogin)
+                    break
 
-
-        switch (opcao) {
-            case "1":
-                const nome = await ask("Nome: ");
-                const email = await ask("Email: ");
-                const senha = await ask("Senha: ");
-                const cpf = await ask("CPF: ");
-                const telefone = await ask("Telefone: ");
-                const rua = await ask("Rua: ");
-                const numero = await ask("Número: ");
-                const cidade = await ask("Cidade: ");
-                const estado = await ask("Estado: ");
-                const cep = await ask("CEP: ");
-                const id = await ClienteController.criar(nome, email, senha, cpf, telefone, rua, numero, cidade, estado, cep);
-                if (id) {
-                    clienteId = id.clienteId
-                    clienteEmail = email;
-                    clienteEndereoco = id.enderecoId
-                }
-                break;
-
-            case "2":
-                const emailLogin = await ask("Email: ");
-                const senhaLogin = await ask("Senha: ");
-                await ClienteController.logar(emailLogin, senhaLogin);
-                break;
-
-            case "3":
-                const idAtualizar = Number(await ask("ID do cliente: "));
-                const nomeAtualizar = await ask("Novo nome: ");
-                const emailAtualizar = await ask("Novo email: ");
-                const telefoneAtualizar = await ask("Novo telefone: ");
-                await ClienteController.atualizarDados(idAtualizar, nomeAtualizar, emailAtualizar, telefoneAtualizar);
-                break;
-
-            case "4":
-                const idEndereco = Number(await ask("ID do endereço: "));
-                const clienteIdEndereco = Number(await ask("ID do cliente: "));
-                const ruaAtualizar = await ask("Rua: ");
-                const numeroAtualizar = await ask("Número: ");
-                const cidadeAtualizar = await ask("Cidade: ");
-                const estadoAtualizar = await ask("Estado: ");
-                const cepAtualizar = await ask("CEP: ");
-                await ClienteController.atualizarEndereco(idEndereco, clienteIdEndereco, ruaAtualizar, numeroAtualizar, cidadeAtualizar, estadoAtualizar, cepAtualizar);
-                break;
-
-            case "5":
-                const emailSenha = await ask("Email: ");
-                const novaSenha = await ask("Nova senha: ");
-                
-                await ClienteController.atualizarSenha(clienteId, novaSenha, emailSenha);
-
-                if (clienteId !== null) {
-                    await ClienteController.atualizarSenha(clienteId, novaSenha, emailSenha);
-                } else {
-                    const cliente = await ClienteService.findByEmail(emailSenha);
-                    if (cliente) {
-                        await ClienteController.atualizarSenha(cliente.cliente_id, novaSenha, emailSenha);
-                    } else {
-                        console.error("❌ Cliente não encontrado para atualizar senha");
+                case "2"://criar
+                    const nome = await ask("Nome: ");
+                    const email = await ask("Email: ");
+                    const senha = await ask("Senha: ");
+                    const cpf = await ask("CPF: ");
+                    const telefone = await ask("Telefone: ");
+                    const rua = await ask("Rua: ");
+                    const numero = await ask("Número: ");
+                    const cidade = await ask("Cidade: ");
+                    const estado = await ask("Estado: ");
+                    const cep = await ask("CEP: ");
+                    const id = await ClienteController.criar(nome, email, senha, cpf, telefone, rua, numero, cidade, estado, cep);
+                    if (id && id.clienteId) {
+                        // clienteId = id.clienteId
+                        // clienteEmail = email;
+                        // clienteEndereoco = id.enderecoId
+                        cliente = await ClienteService.findById(id.clienteId)
                     }
-                }
-                break;
+                    break;
+            }
 
-            case "6":
-                const emailDel = await ask("Email: ");
-                const senhaDel = await ask("Senha: ");
-                await ClienteController.deletarUsuario(emailDel, senhaDel);
-                break;
+        } else {
+            //menu
+            console.log("1 - meus dados");
+            console.log("2 - ver produtos");
+            console.log("0 - Sair");
+            const opcao1 = await ask("Escolha uma opção: ");
 
-            case "0":
-                exit = true;
-                console.log("Saindo...");
-                break;
+            switch (opcao1) {
 
-            default:
-                console.log("❌ Opção inválida");
+
+                case "1"://meu dados
+                    console.log("1 - Atualizar Dados");
+                    console.log("2 - Atualizar Endereço");
+                    console.log("3 - Atulizar Senha")
+                    console.log("4 - Apagar conta")
+                    console.log("0 - voltar");
+
+                    const opcao2 = await ask("Escolha uma opção: ");
+                    switch (opcao2) {
+
+                        case "1"://atualizar dados
+                            const nomeAtualizar = await ask("Novo nome: ");
+                            const emailAtualizar = await ask("Novo email: ");
+                            const telefoneAtualizar = await ask("Novo telefone: ");
+                            await ClienteController.atualizarDados(cliente.cliente_id, nomeAtualizar, emailAtualizar, telefoneAtualizar);
+                            break;
+
+                        case "2"://atulizar endereco
+                            const idEndereco = Number(await ask("ID do endereço: "));
+                            const clienteIdEndereco = Number(await ask("ID do cliente: "));
+                            const ruaAtualizar = await ask("Rua: ");
+                            const numeroAtualizar = await ask("Número: ");
+                            const cidadeAtualizar = await ask("Cidade: ");
+                            const estadoAtualizar = await ask("Estado: ");
+                            const cepAtualizar = await ask("CEP: ");
+                            await ClienteController.atualizarEndereco(idEndereco, cliente.cliente_id, ruaAtualizar, numeroAtualizar, cidadeAtualizar, estadoAtualizar, cepAtualizar);
+                            break;
+
+                        case "3"://Atualizar senha
+                            const emailSenha = await ask("Email: ");
+                            const novaSenha = await ask("Nova senha: ");
+                            await ClienteController.atualizarSenha(cliente.cliente_id, novaSenha, emailSenha);
+                            break;
+
+                        case "4"://apagar usuario
+                            const senhaDel = await ask("Senha: ");
+                            await ClienteController.deletarUsuario(cliente.email, senhaDel);
+                            console.log("✅ Conta apagada com sucesso... saindo")
+                            cliente = undefined
+                            break;
+                        case "0"://sair
+
+                            console.log("voltando...");
+                            break;
+                    }
+                    break
+
+
+                case "2":
+                    console.log("falta cadastrar os produtos")
+                    break
+
+                case "0"://sair
+                    console.log("Logof...");
+                    cliente = undefined
+
+
+                    break;
+
+                default:
+                    console.log("❌ Opção inválida");
+            }
         }
     }
-
     rl.close();
 }
 

@@ -33,16 +33,19 @@ export class ClienteController {
     static async logar(email: string, senha: string) {
 
         try {
-            await ClienteService.login(email, senha)
+            const cliente = await ClienteService.login(email, senha)
+            if(cliente){
+                return cliente
+            }
         } catch (error: any) {
             console.error("erro ao logar:", error.message)
         }
     }
 
 
-    static async atualizarDados(id: number | null, nome: string, email: string, telefone: string) {
+    static async atualizarDados(id: number | undefined, nome: string, email: string, telefone: string) {
         
-        if (id !== null) {
+        if (id !== undefined ) {
             try {
                 await ClienteService.atualizar(id, nome, email, telefone)
             } catch (error: any) {
@@ -54,9 +57,9 @@ export class ClienteController {
     }
 
 
-    static async atualizarSenha(id: number | null, senha: string, email: string) {
+    static async atualizarSenha(id: number | undefined, senha: string, email: string) {
 
-        if (id !== null) {
+        if (id !== undefined) {
             try {
 
                 await ClienteService.atualizarSenha(id, senha, email)
@@ -68,8 +71,8 @@ export class ClienteController {
     }
 
 
-    static async atualizarEndereco(id: number | number, clienteId: number, rua: string, numero: string, cidade: string, estado: string, cep: string) {
-        if (id !== null) {
+    static async atualizarEndereco(id: number | undefined, clienteId: number|undefined, rua: string, numero: string, cidade: string, estado: string, cep: string) {
+        if (id !== undefined && clienteId!==undefined) {
             try {
                 await EnderecoService.atualizar(id, clienteId, rua, numero, cidade, estado, cep)
             } catch (error: any) {
@@ -77,9 +80,6 @@ export class ClienteController {
             }
         }
     }
-
-
-
 
 
     static async deletarUsuario(email: string, senha: string) {

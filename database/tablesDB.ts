@@ -410,8 +410,3 @@ export async function createTables() {
         await closeDB();
     }
 }
-
-
-
-
-

@@ -1,4 +1,3 @@
-import readline from "readline";
 import { ClienteController } from "./controllers/clienteController";
 import { ClienteService } from "./services/clienteService";
 import { Cliente } from "./models/modelCliente";
@@ -127,7 +126,7 @@ async function menuCliente() {
                         case "1": // listar todos
                             await ProdutoController.listarTodos()
 
-                            console.log("1 - cria pedido")
+                            console.log("1 - criar pedido")
                             const opcao = await ask("Escolha uma opção: ");
 
                             switch (opcao) {
@@ -139,15 +138,33 @@ async function menuCliente() {
 
 
                             break
-
-
                         case "2":// pela categoria
                             let nomec = await ask("Categoria: ")
                             await ProdutoController.buscarPorCategoria(nomec)
+
+                            console.log("1 - criar pedido")
+                            const opcao1 = await ask("Escolha uma opção: ");
+
+                            switch (opcao1) {
+
+                                case "1":
+                                    await PedidoProdutoController.criarPedido(cliente.cliente_id, ask)
+                                    break
+                            }
                             break
                         case "3":// pelo nome
                             let nomep = await ask("Produto: ")
                             await ProdutoController.buscarPorNome(nomep)
+
+                              console.log("1 - criar pedido")
+                            const opcao2 = await ask("Escolha uma opção: ");
+
+                            switch (opcao2) {
+
+                                case "1":
+                                    await PedidoProdutoController.criarPedido(cliente.cliente_id, ask)
+                                    break
+                            }
                             break
                     }
                     break

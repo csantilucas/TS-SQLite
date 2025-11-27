@@ -27,7 +27,6 @@ export class PedidoProdutoController {
                     quantidade,
                     preco: produto.produto.preco
                 });
-
                 Carrinho.push({
                     produto: produto.produto.nome,
                     quantidade,
@@ -37,7 +36,6 @@ export class PedidoProdutoController {
                 console.log("\nCarrinho atualizado:");
                 console.table(Carrinho);
             }
-
             continuar = await ask("Quer adicionar mais produtos? (s/n): ");
         }
 
@@ -48,7 +46,7 @@ export class PedidoProdutoController {
             await PedidoProdutoService.criar(pedidoId, item.produtoId, item.quantidade, item.preco);
         }
 
-        console.log("\n✅ Pedido cadastrado com sucesso!");
+        console.log("\n✅ Pedido cadastrado com sucesso!\n");
         console.log("ID do pedido:", pedidoId);
         console.log("Total:", total);
         console.log("\nResumo do carrinho:");

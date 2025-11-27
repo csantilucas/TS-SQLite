@@ -54,7 +54,7 @@ export class ProdutoController {
                 // buscar categorias vinculadas
                 const categorias = await ProdutoCategoriaService.categoriasDoProduto(id);
                 console.log("Produto encontrado:", produto);
-                console.table(categorias);
+                
 
                 return { produto, categorias };
             } catch (error: any) {

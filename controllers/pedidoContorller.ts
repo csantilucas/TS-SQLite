@@ -1,8 +1,6 @@
 import { PedidoService } from "../services/pedidoService";
 import { PedidoProdutoService } from "../services/ppService";
-import { PedidoProdutoController } from "./ppController";
-import { ProdutoController } from "./produtoController";
-import readline from "readline";
+
 export enum StatusPedido {
     ABERTO = "pedido em aberto",
     PENDENTE = "pedido em pendencia",
@@ -83,7 +81,6 @@ export class PedidoController {
 
                 const produtos = await PedidoProdutoService.findByPedido(pedidoId);
                 console.log("Pedido encontrado:", pedido);
-                console.table(produtos);
 
                 return { pedido, produtos };
             } catch (error: any) {

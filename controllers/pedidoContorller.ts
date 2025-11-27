@@ -1,6 +1,8 @@
 import { PedidoService } from "../services/pedidoService";
 import { PedidoProdutoService } from "../services/ppService";
-
+import { PedidoProdutoController } from "./ppController";
+import { ProdutoController } from "./produtoController";
+import readline from "readline";
 export enum StatusPedido {
     ABERTO = "pedido em aberto",
     PENDENTE = "pedido em pendencia",
@@ -9,23 +11,29 @@ export enum StatusPedido {
 
 export class PedidoController {
 
-    // Criar pedido com produtos
-    static async criar(clienteId: number, status: StatusPedido,produtos: { produtoId: number, quantidade: number, preco: number }[]) {
+    // Criar item de pedido
+    static async criar(clienteId: number, status: StatusPedido, produtos: ppmodel[]) {
         try {
-            // cria o pedido
-            const pedidoId = await PedidoService.criar(clienteId, status, 0);
-            console.log("✅ Pedido criado com sucesso. ID:", pedidoId);
+            // 1. calcular total do pedido
+            const total = produtos.reduce((acc, item) => acc + item.preco * item.quantidade, 0);
 
-            // vincula os produtos ao pedido
+            // 2. criar o pedido com o total calculado
+            const pedidoId = await PedidoService.criar(clienteId, status, total);
+            console.log("✅ Pedido criado com sucesso. ID:", pedidoId, "Total:", total);
+
+            // 3. vincular os produtos ao pedido
             for (const item of produtos) {
                 await PedidoProdutoService.criar(pedidoId, item.produtoId, item.quantidade, item.preco);
             }
+
             console.log("✅ Produtos vinculados ao pedido");
-            return { pedidoId };
+            return { pedidoId, total };
         } catch (error: any) {
             console.error("Erro ao criar pedido:", error.message);
         }
     }
+
+
 
     // Listar todos os pedidos
     static async listarTodos() {
@@ -67,7 +75,7 @@ export class PedidoController {
     static async buscarPorId(pedidoId: number | undefined) {
         if (pedidoId) {
             try {
-                const pedido = await PedidoService.deleteByCliente(pedidoId);
+                const pedido = await PedidoService.findByClienteId(pedidoId);
                 if (!pedido) {
                     console.log("Pedido não encontrado");
                     return;
@@ -100,27 +108,27 @@ export class PedidoController {
     }
 
     // Atualizar pedido (ex: atualizar produtos vinculados)
-static async atualizar(
-    pedidoId: number,
-    produtos: { produtoId: number, quantidade: number, preco: number }[]
-) {
-    try {
-        // remove os produtos antigos
-        const antigos = await PedidoProdutoService.findByPedido(pedidoId);
-        for (const item of antigos) {
-            await PedidoProdutoService.delete(item.pedido_id, item.produto_id);
-        }
+    static async atualizar(
+        pedidoId: number,
+        produtos: { produtoId: number, quantidade: number, preco: number }[]
+    ) {
+        try {
+            // remove os produtos antigos
+            const antigos = await PedidoProdutoService.findByPedido(pedidoId);
+            for (const item of antigos) {
+                await PedidoProdutoService.delete(item.pedido_id, item.produto_id);
+            }
 
-        // adiciona os novos
-        for (const item of produtos) {
-            await PedidoProdutoService.criar(pedidoId, item.produtoId, item.quantidade, item.preco);
-        }
+            // adiciona os novos
+            for (const item of produtos) {
+                await PedidoProdutoService.criar(pedidoId, item.produtoId, item.quantidade, item.preco);
+            }
 
- 
-        console.log("✅ Pedido atualizado com sucesso");
-    } catch (error: any) {
-        console.error("Erro ao atualizar pedido:", error.message);
+
+            console.log("✅ Pedido atualizado com sucesso");
+        } catch (error: any) {
+            console.error("Erro ao atualizar pedido:", error.message);
+        }
     }
-}
 
 }

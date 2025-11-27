@@ -1,17 +1,63 @@
+import { PedidoService } from "../services/pedidoService";
 import { PedidoProdutoService } from "../services/ppService";
+import { PedidoController, StatusPedido } from "./pedidoContorller";
+import { ProdutoController } from "./produtoController";
 
 export class PedidoProdutoController {
 
-    // Criar item de pedido
-    static async criar(pedidoId: number, produtoId: number, quantidade: number, precoUnitario: number) {
-        try {
-            const id = await PedidoProdutoService.criar(pedidoId, produtoId, quantidade, precoUnitario);
-            console.log("✅ Item do pedido criado com sucesso. ID:", id);
-            return id;
-        } catch (error: any) {
-            console.error("Erro ao criar item do pedido:", error.message);
+
+
+    // Criar pedido com produtos
+
+    static async criarPedido(clienteId: number,ask: (question: string) => Promise<string>) {
+        let itensPedido: { produtoId: number; quantidade: number; preco: number }[] = [];
+        let Carrinho: { produto: string; quantidade: number; preco: number }[] = [];
+        let continuar = "s";
+
+        while (continuar.toLowerCase() === "s") {
+            const produtoId = Number(await ask("Insira o ID do produto: "));
+            const quantidade = Number(await ask("Quantidade: "));
+
+            const produto = await ProdutoController.buscarPorId(produtoId);
+            if (!produto) {
+                console.log("❌ Produto não encontrado");
+            } else {
+                itensPedido.push({
+                    produtoId: produto.produto.produto_id,
+                    quantidade,
+                    preco: produto.produto.preco
+                });
+
+                Carrinho.push({
+                    produto: produto.produto.nome,
+                    quantidade,
+                    preco: produto.produto.preco
+                });
+
+                console.log("\nCarrinho atualizado:");
+                console.table(Carrinho);
+            }
+
+            continuar = await ask("Quer adicionar mais produtos? (s/n): ");
         }
+
+        const total = itensPedido.reduce((acc, item) => acc + item.preco * item.quantidade, 0);
+        const pedidoId = await PedidoService.criar(clienteId, StatusPedido.ABERTO, total);
+
+        for (const item of itensPedido) {
+            await PedidoProdutoService.criar(pedidoId, item.produtoId, item.quantidade, item.preco);
+        }
+
+        console.log("\n✅ Pedido cadastrado com sucesso!");
+        console.log("ID do pedido:", pedidoId);
+        console.log("Total:", total);
+        console.log("\nResumo do carrinho:");
+        console.table(Carrinho);
+
+        return { pedidoId, total };
     }
+
+
 
     // Atualizar item de pedido
     static async atualizar(id: number, pedidoId: number, produtoId: number, quantidade: number, precoUnitario: number) {

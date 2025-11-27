@@ -1,153 +1,139 @@
-import { PedidoService } from "../services/pedidoService";
-import { PedidoProdutoService } from "../services/ppService";
-import { ProdutoCategoriaService } from "../services/pcService";
+import { ProdutoService } from "../services/produtoService";
+import { CategoriaService } from "../services/categoriaService";
+import { ProdutoCategoriaService } from "../services/pcService"
+import { Produto } from "../models/modelProduto";
+import { ProdutoRepository } from "../repository/produtoRepository";
 
-export enum StatusPedido {
-    ABERTO = "pedido em aberto",
-    PENDENTE = "pedido em pendencia",
-    FINALIZADO = "pedido concluido"
-}
+export class ProdutoController {
 
-export class PedidoController {
-
-    // Criar pedido com produtos e vincular categorias
-    static async criar(
-        clienteId: number,
-        status: StatusPedido,
-        produtos: { produtoId: number, quantidade: number, preco: number, categoriaId: number }[]
-    ) {
+    // Criar Produto e vincular a uma categoria
+    static async criar(nome: string, descricao: string, preco: number, estoque: number, categoriaId: number) {
         try {
-            // calcula o total do pedido
-            const total = produtos.reduce((acc, item) => acc + item.preco * item.quantidade, 0);
+            // cria o produto
+            const produtoId = await ProdutoService.criar(nome, descricao, preco, estoque);
+            console.log("✅ Produto criado com sucesso. ID:", produtoId);
 
-            // cria o pedido
-            const pedidoId = await PedidoService.criar(clienteId, status, total);
-            console.log("✅ Pedido criado com sucesso. ID:", pedidoId);
-
-            // vincula os produtos ao pedido e suas categorias
-            for (const item of produtos) {
-                // vincula produto ao pedido
-                await PedidoProdutoService.criar(pedidoId, item.produtoId, item.quantidade, item.preco);
-
-                // vincula produto à categoria
-                await ProdutoCategoriaService.criar(item.produtoId, item.categoriaId);
+            // valida se a categoria existe
+            const categoria = await CategoriaService.findById(categoriaId);
+            if (!categoria) {
+                console.log("❌ Categoria não encontrada");
+                return;
             }
 
-            console.log("✅ Produtos e categorias vinculados ao pedido");
-            return { pedidoId };
+            // vincula produto à categoria
+            await ProdutoCategoriaService.criar(produtoId, categoriaId);
+            console.log(`✅ Produto ${produtoId} vinculado à categoria ${categoria.nome}`);
+
+            return produtoId;
         } catch (error: any) {
-            console.error("Erro ao criar pedido:", error.message);
+            console.error("Erro ao criar produto:", error.message);
         }
     }
 
-    // Listar todos os pedidos
+    // Listar todos os produtos
     static async listarTodos() {
         try {
-            const pedidos = await PedidoService.listar();
-            console.table(pedidos);
-            return pedidos;
+            const produtos = await ProdutoService.listar();
+            console.table(produtos);
+            return produtos;
         } catch (error: any) {
-            console.error("Erro ao listar pedidos:", error.message);
+            console.error("Erro ao listar produtos:", error.message);
         }
     }
 
-    // Buscar pedidos por cliente
-    static async buscarPorCliente(clienteId: number | undefined) {
-        if (clienteId) {
+    // Buscar produto por ID (inclui categorias vinculadas)
+    static async buscarPorId(id: number | undefined) {
+        if (id) {
             try {
-                const pedidos = await PedidoService.findByClienteId(clienteId);
-                if (!pedidos || pedidos.length === 0) {
-                    console.log("Nenhum pedido encontrado para este cliente");
+                const produto = await ProdutoService.findById(id);
+                if (!produto) {
+                    console.log("Produto não encontrado");
+                    return;
+                }
+
+                // buscar categorias vinculadas
+                const categorias = await ProdutoCategoriaService.categoriasDoProduto(id);
+                console.log("Produto encontrado:", produto);
+                console.table(categorias);
+
+                return { produto, categorias };
+            } catch (error: any) {
+                console.error("Erro ao buscar produto:", error.message);
+            }
+        }
+    }
+
+    // Buscar produto por nome
+
+    static async buscarPorNome(nome: string) {
+        if (nome) {
+            try {
+                const produtos = await ProdutoService.findByNome(nome);
+                if (!produtos || produtos.length === 0) {
+                    console.log("❌ Nenhum produto encontrado");
                     return [];
                 }
 
-                const resultado = [];
-                for (const pedido of pedidos) {
-                    const produtos = await PedidoProdutoService.findByPedido(pedido.pedido_id);
-
-                    // para cada produto, buscar categorias vinculadas
-                    const produtosComCategoria = [];
-                    for (const p of produtos) {
-                        const categorias = await ProdutoCategoriaService.categoriasDoProduto(p.produto_id);
-                        produtosComCategoria.push({ ...p, categorias });
-                    }
-
-                    resultado.push({ pedido, produtos: produtosComCategoria });
-                }
-
-                console.log("Pedidos encontrados:", resultado);
-                return resultado;
+                console.log("Produtos encontrados:");
+                console.table(produtos);
+                return produtos;
             } catch (error: any) {
-                console.error("Erro ao buscar pedidos por cliente:", error.message);
+                console.error("Erro ao buscar produto:", error.message);
             }
         }
     }
 
-    // Buscar pedido por ID
-    static async buscarPorId(pedidoId: number | undefined) {
-        if (pedidoId) {
-            try {
-                const pedido = await PedidoService.findById(pedidoId);
-                if (!pedido) {
-                    console.log("Pedido não encontrado");
-                    return null;
-                }
 
-                const produtos = await PedidoProdutoService.findByPedido(pedidoId);
 
-                // buscar categorias de cada produto
-                const produtosComCategoria = [];
-                for (const p of produtos) {
-                    const categorias = await ProdutoCategoriaService.categoriasDoProduto(p.produto_id);
-                    produtosComCategoria.push({ ...p, categorias });
-                }
-
-                console.log("Pedido encontrado:", pedido);
-                console.table(produtosComCategoria);
-
-                return { pedido, produtos: produtosComCategoria };
-            } catch (error: any) {
-                console.error("Erro ao buscar pedido por ID:", error.message);
-            }
+    //buscar produtos por categoira
+    static async buscarPorCategoria(nome: string) {
+        const categoria = await CategoriaService.findByNome(nome);
+        if (categoria) {
+            // chama o repository corretamente
+            const produtos = await ProdutoRepository.findByCategora(categoria.categoria_id);
+            return console.table(produtos)
+        } else {
+            console.log("❌ Categoria não encontrada");
+            return [];
         }
     }
 
-    // Deletar pedido (e seus produtos vinculados)
-    static async deletar(pedidoId: number) {
-        try {
-            const produtos = await PedidoProdutoService.findByPedido(pedidoId);
-            for (const item of produtos) {
-                await PedidoProdutoService.delete(item.pedido_id, item.produto_id);
-            }
 
-            await PedidoService.delete(pedidoId);
-            console.log("✅ Pedido e produtos vinculados deletados com sucesso");
-        } catch (error: any) {
-            console.error("Erro ao deletar pedido:", error.message);
-        }
-    }
-
-    // Atualizar pedido (ex: atualizar produtos vinculados)
+    // Atualizar produto e vincular nova categoria
     static async atualizar(
-        pedidoId: number,
-        produtos: { produtoId: number, quantidade: number, preco: number, categoriaId: number }[]
+        id: number | undefined,
+        nome: string,
+        descricao: string,
+        preco: number,
+        estoque: number,
+        categoriaId: number
     ) {
-        try {
-            // remove os produtos antigos
-            const antigos = await PedidoProdutoService.findByPedido(pedidoId);
-            for (const item of antigos) {
-                await PedidoProdutoService.delete(item.pedido_id, item.produto_id);
-            }
+        if (id) {
+            try {
+                const result = await ProdutoService.atualizar(id, nome, descricao, preco, estoque);
+                console.log("✅ Produto atualizado com sucesso");
 
-            // adiciona os novos e vincula categorias
-            for (const item of produtos) {
-                await PedidoProdutoService.criar(pedidoId, item.produtoId, item.quantidade, item.preco);
-                await ProdutoCategoriaService.criar(item.produtoId, item.categoriaId);
-            }
+                // vincula novamente à categoria (se necessário)
+                await ProdutoCategoriaService.criar(id, categoriaId);
+                console.log(`✅ Produto ${id} vinculado à categoria ${categoriaId}`);
 
-            console.log("✅ Pedido atualizado com sucesso");
-        } catch (error: any) {
-            console.error("Erro ao atualizar pedido:", error.message);
+                return result;
+            } catch (error: any) {
+                console.error("Erro ao atualizar produto:", error.message);
+            }
+        }
+    }
+
+    // Deletar produto
+    static async deletar(id: number | undefined) {
+        if (id) {
+            try {
+                const result = await ProdutoService.delete(id);
+                console.log("✅ Produto deletado com sucesso");
+                return result;
+            } catch (error: any) {
+                console.error("Erro ao deletar produto:", error.message);
+            }
         }
     }
 }

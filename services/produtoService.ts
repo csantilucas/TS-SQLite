@@ -2,10 +2,11 @@ import { describe } from "node:test";
 import { Produto } from "../models/modelProduto";
 import { ProdutoRepository } from "../repository/produtoRepository";
 import { PedidoRepository } from "../repository/pedidoRepository";
+import { NOMEM } from "dns";
 
 export class ProdutoService {
   // Criar Produto
-  static async criar(nome: string, descricao:string, preco: number, estoque: number): Promise<number> {
+  static async criar(nome: string, descricao: string, preco: number, estoque: number): Promise<number> {
     if (!nome) throw new Error("Dados ausentes (insira um nome)");
     if (!preco) throw new Error("Dados ausentes (insira um preço)");
     if (estoque == null) throw new Error("o estoque nao pode ser vazio");
@@ -15,20 +16,20 @@ export class ProdutoService {
   }
 
   // Atualizar Produto
-  static async atualizar(id:number, nome: string, descricao:string, preco: number, estoque: number): Promise<number> {
+  static async atualizar(id: number, nome: string, descricao: string, preco: number, estoque: number): Promise<number> {
     if (!id) throw new Error("Dados ausentes (insira o id)");
     if (!nome) throw new Error("Dados ausentes (insira um nome)");
     if (!preco) throw new Error("Dados ausentes (insira um preço)");
     if (estoque == null) throw new Error("Dados ausentes (insira o estoque)");
 
-    const update = await ProdutoRepository.update(id, nome, descricao ,preco, estoque);
+    const update = await ProdutoRepository.update(id, nome, descricao, preco, estoque);
     if (!update) throw new Error("Produto não encontrado");
 
     return update;
   }
 
 
-   static async atualizarEstoque(id:number, estoque: number): Promise<number> {
+  static async atualizarEstoque(id: number, estoque: number): Promise<number> {
     if (!id) throw new Error("Dados ausentes (insira o id)");
     if (estoque == null) throw new Error("Dados ausentes (insira o estoque)");
 
@@ -43,6 +44,13 @@ export class ProdutoService {
     if (!id) throw new Error("Dados ausentes (insira o id)");
     return await ProdutoRepository.findByID(id);
   }
+
+  // Buscar Produto por Nome (retorna lista)
+  static async findByNome(nome: string): Promise<Produto[]> {
+    if (!nome) throw new Error("Dados ausentes (insira o nome)");
+    return await ProdutoRepository.findByName(nome);
+  }
+
 
   // Listar todos os produtos
   static async listar(): Promise<Produto[]> {

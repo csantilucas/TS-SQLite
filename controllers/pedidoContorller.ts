@@ -10,24 +10,16 @@ export enum StatusPedido {
 export class PedidoController {
 
     // Criar pedido com produtos
-    static async criar(
-        clienteId: number,
-        status: StatusPedido,
-        produtos: { produtoId: number, quantidade: number, preco: number }[]
-    ) {
+    static async criar(clienteId: number, status: StatusPedido,produtos: { produtoId: number, quantidade: number, preco: number }[]) {
         try {
-            // calcula o total do pedido
-            const total = produtos.reduce((acc, item) => acc + item.preco * item.quantidade, 0);
-
             // cria o pedido
-            const pedidoId = await PedidoService.criar(clienteId, status, total);
+            const pedidoId = await PedidoService.criar(clienteId, status, 0);
             console.log("✅ Pedido criado com sucesso. ID:", pedidoId);
 
             // vincula os produtos ao pedido
             for (const item of produtos) {
                 await PedidoProdutoService.criar(pedidoId, item.produtoId, item.quantidade, item.preco);
             }
-
             console.log("✅ Produtos vinculados ao pedido");
             return { pedidoId };
         } catch (error: any) {

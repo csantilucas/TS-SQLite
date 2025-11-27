@@ -5,6 +5,7 @@ import { Cliente } from "./models/modelCliente";
 import { Administrador } from "./models/modelAdminstrador";
 import { ClienteRepository } from "./repository/clienteRepository";
 import { AdministradorController } from "./controllers/admintradorControlle";
+import { ProdutoController } from "./controllers/produtoController";
 
 async function menuCliente() {
     const rl = readline.createInterface({
@@ -21,6 +22,7 @@ async function menuCliente() {
     let adm: Administrador | undefined = undefined
 
     while (!exit) {
+        cliente = ClienteController.logar("lucas@gmail.com", "12345")
         if (!cliente && !adm) {// nenhum logado
 
             console.log("\n=== MENU CLIENTE ===");
@@ -72,8 +74,6 @@ async function menuCliente() {
             const opcao1 = await ask("Escolha uma opção: ");
 
             switch (opcao1) {//submenu
-
-
                 case "1"://meu dados
                     console.log("1 - Atualizar Dados");
                     console.log("2 - Atualizar Endereço");
@@ -121,13 +121,28 @@ async function menuCliente() {
                     }
                     break
 
-
                 case "2":// produtos
-                    console.log("falta cadastrar os produtos")
+
+                    console.log("\n--------------------------------------produtos------------------------------------------")
+                    console.log("1 - ver todos os produtos")
+                    console.log("2 - listar por categoria")
+                    console.log("3 - Procurar por nome do produto")
+
+                    let opcao = await ask("Escolha uma opçao: ")
+                    switch (opcao) {
+                        case "1": // listar todos
+                            await ProdutoController.listarTodos()
+                            break
+                        case "2":// pela categoria
+                            let nomec = await ask("Categoria: ")
+                            await ProdutoController.buscarPorCategoria(nomec)
+                            break
+                        case "3":// pelo nome
+                            let nomep = await ask("Produto: ")
+                            await ProdutoController.buscarPorNome(nomep)
+                            break
+                    }
                     break
-
-
-
 
 
                 case "0"://sair
@@ -156,8 +171,6 @@ async function menuCliente() {
                 case "2":
                     console.log("📦 Em breve: listagem de produtos");
                     break;
-
-            
 
                 case "0":
                     console.log("Logout administrador realizado");

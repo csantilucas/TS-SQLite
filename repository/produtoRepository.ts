@@ -15,7 +15,7 @@ export class ProdutoRepository {
 
     //CREATE
 
-    static async create(nome: string, descricao: string, preco: number, estoque: number):Promise<number> {
+    static async create(nome: string, descricao: string, preco: number, estoque: number): Promise<number> {
         const db = await getDB()
         const result = await db.run(`
             INSERT INTO Produto (nome, descricao, preco, estoque) values (?,?,?,?)`,
@@ -25,56 +25,65 @@ export class ProdutoRepository {
     }
 
     //READ
-    static async findAll():Promise<Produto[]>{
+    static async findAll(): Promise<Produto[]> {
         const db = await getDB()
         const result = await db.all(`select * from Produto `)
         return result
     }
-    //READ BY NAME
-    static async findByName(nome:string):Promise<Produto[] | undefined>{
-        const db = await getDB()
-        const result = await db.get(`SELECT * FROM Produto WHERE nome= ?`,
-            [nome]
-        ) 
-        return result
+    // READ BY NAME (busca parcial)
+    static async findByName(nome: string): Promise<Produto[]> {
+        const db = await getDB();
+        const result = await db.all(
+            `SELECT * FROM Produto WHERE nome LIKE ?`,
+            [`%${nome}%`] // busca todos que contenham o nome
+        );
+        return result;
     }
+
     //READ BY ID
-    static async findByID(id:number):Promise<Produto | undefined>{
+    static async findByID(id: number): Promise<Produto | undefined> {
         const db = await getDB()
         const result = await db.get(`SELECT * FROM Produto WHERE produto_id= ?`,
             [id]
-        ) 
-        return result 
+        )
+        return result
+    }
+
+    static async findByCategora(id: number):Promise<Produto[]>{
+        const db = await getDB()
+        const result = await db.all(`SELECT * FROM Produto as p INNER JOIN Produto_Categoria as pc on p.produto_id = pc.produto_id WHERE pc.categoria_id=?`,
+            [id])
+            return result
     }
 
     // UPDATE
 
-   static async update(id:number, nome: string, descricao: string, preco: number, estoque: number): Promise<number>{
-        const db = await getDB()
+    static async update(id: number, nome: string, descricao: string, preco: number, estoque: number): Promise < number > {
+    const db = await getDB()
         const result = await db.run(`UPDATE Produto SET nome = ?, descricao = ?, preco = ?, estoque=? WHERE produto_id = ?`,
-            [nome, descricao, preco, estoque, id]
-        );
-        return result.changes ?? 0
+        [nome, descricao, preco, estoque, id]
+    );
+    return result.changes ?? 0
 
-    }
+}
 
-    static async updateEstoque(id:number, estoque: number): Promise<number>{
-        const db = await getDB()
+    static async updateEstoque(id: number, estoque: number): Promise < number > {
+    const db = await getDB()
         const result = await db.run(`UPDATE Produto SET estoque=? WHERE produto_id = ?`,
-            [estoque, id]
-        );
-        return result.changes ?? 0
+        [estoque, id]
+    );
+    return result.changes ?? 0
 
-    }
+}
 
 
     //DELETE
 
-    static async delete(id:number): Promise<number>{
-        const db = await getDB()
-        const result = await db.run(`DELETE FROM Produto WHERE produto_id= ?`,[id]) 
+    static async delete (id: number): Promise < number > {
+    const db = await getDB()
+        const result = await db.run(`DELETE FROM Produto WHERE produto_id= ?`, [id])
         return result.changes ?? 0
-    }
+}
 
 
 }

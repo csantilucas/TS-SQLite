@@ -86,5 +86,3 @@ export class AdministradorController {
 }
 
 
-
-AdministradorController.criar("lucas","lucas@gmail.com","1234")

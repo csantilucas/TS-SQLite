@@ -37,6 +37,13 @@ export class CategoriaService {
         return await CategoriaRepository.findByID(id);
     }
 
+    // Buscar por nome
+
+    static async findByNome(nome: string): Promise<Categoria | undefined> {
+        if (!nome) throw new Error("Nao foi possivel achar essa categoria, insira um nome)");
+        return await CategoriaRepository.findByName(nome);
+    }
+
     // Listar todas as categorias
     static async listar(): Promise<Categoria[]> {
         return await CategoriaRepository.findAll();

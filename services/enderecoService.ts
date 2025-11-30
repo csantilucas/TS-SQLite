@@ -3,36 +3,33 @@ import { EnderecoRepository } from "../repository/enderecoRepository";
 
 export class EnderecoService {
     // Criar Endereço
-    static async criar(clienteId: number, rua: string, numero: string, cidade: string, estado: string, cep: string): Promise<number> {
-        if (!clienteId) throw new Error("Dados ausentes (insira o clienteId)");
+    static async criar(cliente_id:number, rua:string, bairro:string, cep:string, numero:string, complemento:string): Promise<number> {
+        if (!cliente_id) throw new Error("Dados ausentes (insira o clienteId)");
         if (!rua) throw new Error("Dados ausentes (insira a rua)");
         if (!numero) throw new Error("Dados ausentes (insira o número)");
-        if (!cidade) throw new Error("Dados ausentes (insira a cidade)");
-        if (!estado) throw new Error("Dados ausentes (insira o estado)");
         if (!cep) throw new Error("Dados ausentes (insira o CEP)");
 
-        const id = await EnderecoRepository.create(clienteId, rua, numero, cidade, estado, cep);
+        const id = await EnderecoRepository.create(cliente_id, rua, bairro, cep, numero, complemento);
         if (!id) throw new Error("Erro ao criar endereço");
 
         return id;
     }
 
     // Atualizar Endereço
-    static async atualizar(id: number, clienteId: number, rua: string, numero: string, cidade: string, estado: string, cep: string): Promise<number> {
+    static async atualizar(id:number,cliente_id:number,rua:string, bairro:string, cep:string, numero:string, complemento:string): Promise<number> {
 
         if (!id) throw new Error("Dados ausentes (insira o id)");
-        if (!clienteId) throw new Error("Dados ausentes (insira o clienteId)");
+        if (!cliente_id) throw new Error("Dados ausentes (insira o clienteId)");
         if (!rua) throw new Error("Dados ausentes (insira a rua)");
+        if (!cep) throw new Error("Dados ausentes (insira o CEP)");
         if (!numero) throw new Error("Dados ausentes (insira o número)");
-        if (!cidade) throw new Error("Dados ausentes (insira a cidade)");
-        if (!estado) throw new Error("Dados ausentes (insira o estado)");
         if (!cep) throw new Error("Dados ausentes (insira o CEP)");
 
         const endereco = await EnderecoRepository.findById(id);
         if (!endereco) throw new Error("Endereço não encontrado");
 
-        const update = await EnderecoRepository.update(id, clienteId, rua, numero, cidade, estado, cep);
-        if (update == 0) throw new Error("Endereço não encontrado");
+        const update = await EnderecoRepository.update(id, rua, bairro, cep, numero, complemento);
+        if (update == 0) throw new Error("falha ao atualizar o endereço");
         return update;
     }
 

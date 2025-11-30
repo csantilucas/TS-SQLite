@@ -33,7 +33,7 @@ export class CategoriaRepository {
 
     static async findByID(id:number):Promise<Categoria | undefined>{
         const db = await getDB()
-        return await db.all(`SELECT * FROM Categoria WHERE categoria_id = ?`,
+        return await db.get(`SELECT * FROM Categoria WHERE categoria_id = ?`,
         [id])
     }
 
@@ -41,6 +41,16 @@ export class CategoriaRepository {
         const db = await getDB()
         return await db.get(`SELECT * FROM Categoria WHERE nome=?`,
             [name])
+    }
+
+    static async findByProduto(produtoId: number): Promise<Categoria[]> {
+        const db = await getDB();
+        return await db.all(
+            `SELECT c.* FROM Categoria c
+             INNER JOIN Produto_Categoria pc ON c.categoria_id = pc.categoria_id
+             WHERE pc.produto_id = ?`,
+            [produtoId]
+        );
     }
 
     //UPDATE
@@ -61,6 +71,13 @@ export class CategoriaRepository {
             [id]
         )
         return result.changes ?? 0
+    }
+
+    static async deleteRelations(categoriaId: number): Promise<void> {
+        const db = await getDB();
+        // Remove vínculos da categoria com produtos
+        await db.run(`DELETE FROM Produto_Categoria WHERE categoria_id = ?`, [categoriaId]);
+        // Se houver outras tabelas relacionadas, faça o mesmo aqui
     }
 }
 

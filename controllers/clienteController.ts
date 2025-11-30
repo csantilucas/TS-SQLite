@@ -1,7 +1,8 @@
 import { ClienteService } from "../services/clienteService";
 import { EnderecoService } from "../services/enderecoService";
 import { PedidoService } from "../services/pedidoService";
-import { PedidoProdutoService } from "../services/ppService";
+import { PedidoProdutoService } from "../services/Pedido_ProdutoService";
+import { EnderecoController } from "./enderecoController";
 
 //Lembrar de adicionar a verificaçao do id e definir como id:number|null
 
@@ -54,6 +55,17 @@ export class ClienteController {
 
 
     }
+    static async verEndereco(clienteId: number | undefined) {
+        if (clienteId !== undefined) {
+            try { 
+                const endereco = await EnderecoService.findByClienteId(clienteId)
+                return endereco
+            }
+            catch (error: any) {    
+                console.error("erro ao buscar endereco:", error.message)
+            }
+        }   
+    }
 
 
     static async atualizarSenha(id: number | undefined, senha: string, email: string) {
@@ -70,10 +82,10 @@ export class ClienteController {
     }
 
 
-    static async atualizarEndereco(id: number | undefined, clienteId: number|undefined, rua: string, numero: string, cidade: string, estado: string, cep: string) {
+    static async atualizarEndereco(id: number | undefined, clienteId: number|undefined, rua: string, numero: string,bairro:string, cep: string,complemento:string) {
         if (id !== undefined && clienteId!==undefined) {
             try {
-                await EnderecoService.atualizar(id, clienteId, rua, numero, cidade, estado, cep)
+                await EnderecoController.atualizar(id, clienteId, rua, bairro, cep, numero, complemento)
             } catch (error: any) {
                 console.log("erro ao atulizar dados:", error.message)
             }

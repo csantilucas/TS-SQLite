@@ -1,5 +1,7 @@
+import { PedidoComProdutos } from "../models/modelPedido";
+import { ppmodel } from "../models/modelPP";
 import { PedidoService } from "../services/pedidoService";
-import { PedidoProdutoService } from "../services/ppService";
+import { PedidoProdutoService } from "../services/Pedido_ProdutoService";
 
 export enum StatusPedido {
     ABERTO = "pedido em aberto",
@@ -13,7 +15,7 @@ export class PedidoController {
     static async criar(clienteId: number, status: StatusPedido, produtos: ppmodel[]) {
         try {
             // 1. calcular total do pedido
-            const total = produtos.reduce((acc, item) => acc + item.preco * item.quantidade, 0);
+            const total = produtos.reduce((acc, item) => acc + item.valor_unitario * item.quantidade, 0);
 
             // 2. criar o pedido com o total calculado
             const pedidoId = await PedidoService.criar(clienteId, status, total);
@@ -21,7 +23,7 @@ export class PedidoController {
 
             // 3. vincular os produtos ao pedido
             for (const item of produtos) {
-                await PedidoProdutoService.criar(pedidoId, item.produtoId, item.quantidade, item.preco);
+                await PedidoProdutoService.criar(pedidoId, item.produto_id, item.quantidade, item.valor_unitario);
             }
 
             console.log("✅ Produtos vinculados ao pedido");
@@ -34,15 +36,38 @@ export class PedidoController {
 
 
     // Listar todos os pedidos
-    static async listarTodos() {
+    static async listarTodos(): Promise<PedidoComProdutos[]> {
         try {
-            const pedidos = await PedidoService.listar();
-            console.table(pedidos);
-            return pedidos;
+            const pedidos = await PedidoService.listar(); // lista pedidos básicos
+
+            const resultado: PedidoComProdutos[] = [];
+
+            for (const pedido of pedidos) {
+                // busca os produtos vinculados a cada pedido
+                const produtos = await PedidoProdutoService.findByPedido(pedido.pedido_id);
+
+                resultado.push({
+                    pedido,
+                    produtos
+                });
+            }
+
+            console.table(resultado.map(r => ({
+                PedidoID: r.pedido.pedido_id,
+                ClienteID: r.pedido.cliente_id,
+                Data: r.pedido.data_pedido,
+                Status: r.pedido.status,
+                ValorTotal: r.pedido.valor_total,
+                Produtos: r.produtos.map(p => p.nome).join(", ")
+            })));
+
+            return resultado;
         } catch (error: any) {
             console.error("Erro ao listar pedidos:", error.message);
+            return [];
         }
     }
+
 
     // Buscar pedidos por cliente
     static async buscarPorCliente(clienteId: number | undefined) {
@@ -127,5 +152,7 @@ export class PedidoController {
             console.error("Erro ao atualizar pedido:", error.message);
         }
     }
+
+
 
 }

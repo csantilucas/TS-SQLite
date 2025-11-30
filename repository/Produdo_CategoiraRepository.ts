@@ -40,9 +40,21 @@ export class ProdutoCategoriaRepository {
   }
 
   // DELETE - remover relação
-  static async delete(id: number): Promise<number> {
+  static async deleteByProduto(id: number): Promise<number> {
     const db = await getDB();
-    const result = await db.run(`DELETE FROM Produto_Categoria WHERE id = ?`, [id]);
+    const result = await db.run(`DELETE FROM Produto_Categoria WHERE produto_id = ?`, [id]);
+    return result.changes ?? 0;
+  }
+
+  static async deleteByCategoria(id: number): Promise<number> {
+    const db = await getDB();
+    const result = await db.run(`DELETE FROM Produto_Categoria WHERE categoria_id = ?`, [id]);
+    return result.changes ?? 0;
+  }
+
+  static async deleteByProduto_Categoria(idC: number, idP:number): Promise<number> {
+    const db = await getDB();
+    const result = await db.run(`DELETE FROM Produto_Categoria WHERE categoria_id = ? AND WHERE produto_id=?`, [idC,idP]);
     return result.changes ?? 0;
   }
 }

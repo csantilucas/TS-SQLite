@@ -7,9 +7,9 @@ db.all  ->  executar querys
 
 */
 
-import { closeDB, getDB } from "../database/initDB";
-import { PP } from "../models/modelPP";
-import { Produto } from "../models/modelProduto";
+import { getDB } from "../database/initDB";
+import { ppmodel } from "../models/modelPP";
+
 // CRUD PARA PRODUTO
 
 export class ppRepository {
@@ -24,18 +24,18 @@ export class ppRepository {
   }
 
   // READ ALL
-  static async findAll(): Promise<PP[]> {
+  static async findAll(): Promise<ppmodel[]> {
     const db = await getDB();
     return await db.all(`SELECT * FROM Pedido_Produto`);
   }
 
   // READ BY PEDIDO
-  static async findByPedido(pedido_id: number): Promise<PP[]> {
+  static async findByPedido(pedido_id: number): Promise<ppmodel[]> {
     const db = await getDB();
     return await db.all(`SELECT * FROM Pedido_Produto WHERE pedido_id = ?`, [pedido_id]);
   }
 
-  static async find(id_pedido: number,id_produto:number): Promise<PP | undefined> {
+  static async find(id_pedido: number,id_produto:number): Promise<ppmodel | undefined> {
     const db = await getDB();
     return await db.all(`SELECT * FROM Pedido_Produto WHERE pedido_id = ?, produto_id:?`, [id_pedido,id_produto]);
   }

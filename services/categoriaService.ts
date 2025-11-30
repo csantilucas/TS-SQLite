@@ -11,7 +11,7 @@ export class CategoriaService {
 
         const categoriaExistente = await CategoriaRepository.findByName(nome);
         if (categoriaExistente) throw new Error("Categoria já cadastrada");
-        
+
         const categoriaId = await CategoriaRepository.create(nome, descricao);
         if (!categoriaId) throw new Error("Erro ao criar categoria");
 
@@ -37,6 +37,12 @@ export class CategoriaService {
         return await CategoriaRepository.findByID(id);
     }
 
+
+    static async findByProduto(produtoId: number): Promise<Categoria[]> {
+        if (!produtoId) throw new Error("Nao foi possivel achar essa categoria, insira um produtoId)");
+        return await CategoriaRepository.findByProduto(produtoId);
+    }
+
     // Buscar por nome
 
     static async findByNome(nome: string): Promise<Categoria | undefined> {
@@ -50,13 +56,15 @@ export class CategoriaService {
     }
 
     // Deletar Categoria
-    static async delete(id: number): Promise<string> {
-        if (!id) throw new Error("Dados ausentes (insira o id)");
+    static async deletar(categoriaId: number): Promise<number> {
+        if (!categoriaId) throw new Error("ID da categoria ausente");
+        // Apagar relações da categoria com outras tabelas
+        await CategoriaRepository.deleteRelations(categoriaId);
+        // Agora apaga a categoria
+        const result = await CategoriaRepository.delete(categoriaId);
+        if (result == 0) throw new Error("❌ Categoria não encontrada ou já removida");
 
-        const linhasAfetadas = await CategoriaRepository.delete(id);
-        if (linhasAfetadas === 0) throw new Error("Categoria não encontrada");
-
-        return "Categoria deletada com sucesso";
+        return result;
     }
 }
 

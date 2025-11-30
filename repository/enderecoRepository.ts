@@ -17,30 +17,30 @@ import { ClienteRepository } from "./clienteRepository";
 // CRUD PARA categoria
 
 
-export class 
-EnderecoRepository {
+export class
+    EnderecoRepository {
 
     //CREATE
 
-    static async create(cliente_id:number, rua:string, bairro:string, cep:string, numero:string, complemento:string):Promise<number> {
-        const db= await getDB()
+    static async create(cliente_id: number, rua: string, bairro: string, cep: string, numero: string, complemento: string): Promise<number> {
+        const db = await getDB()
         const result = await db.run(`INSERT INTO Endereco(cliente_id,rua,bairro,cep,numero,complemento) VALUES(?,?,?,?,?,?)`,
             [cliente_id, rua, bairro, cep, numero, complemento])
         return result.lastID ?? 0
     }
 
     //READ
-    static async findAll():Promise<Endereco[]>{
+    static async findAll(): Promise<Endereco[]> {
         const db = await getDB()
         return await db.all(`SELECT * FROM Endereco`)
     }
 
-    static async findById(id:number):Promise<Endereco[]>{
+    static async findById(id: number): Promise<Endereco[]> {
         const db = await getDB()
-        return await db.all(`SELECT * FROM Endereco where endereco_id=?`,[id])
+        return await db.all(`SELECT * FROM Endereco where endereco_id=?`, [id])
     }
 
-    static async findByClienteId(id:number):Promise<Endereco[]>{
+    static async findByClienteId(id: number): Promise<Endereco[]> {
         const db = await getDB()
         return await db.all(`SELECT * FROM Endereco WHERE cliente_id=?`,
             [id])
@@ -48,17 +48,18 @@ EnderecoRepository {
 
     //UPDATE
 
-    static async update(id:number,cliente_id:number,rua:string,bairro:string,cep:string,numero:string,complemento:string):Promise<number>{
+    static async update(id: number, rua: string, bairro: string, cep: string, numero: string, complemento: string): Promise<number> {
         const db = await getDB()
-        const result = await db.run(`UPDATE Endereco SET cliente_id=?,rua=?,bairro=?,cep=?,numero=?,complemento=? WHERE endereco_id=?`,
-            [cliente_id,rua,bairro,cep,numero,complemento,id]
-        )
+        const result = await db.run(
+            `UPDATE Endereco SET rua=?, bairro=?, cep=?, numero=?, complemento=? WHERE endereco_id=?`,
+            [rua, bairro, cep, numero, complemento, id]
+        );
         return result.changes ?? 0
     }
 
     //DELETE
 
-    static async delete(id:number):Promise<number>{
+    static async delete(id: number): Promise<number> {
         const db = await getDB()
         const result = await db.run(`DELETE FROM Endereco WHERE endereco_id=?`,
             [id]

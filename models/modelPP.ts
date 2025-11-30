@@ -1,4 +1,5 @@
-export interface PP{
+export interface ppmodel{
+    pedido_nome:string
     pedido_id:number
     produto_id:number
     quantidade:number

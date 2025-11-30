@@ -1,4 +1,4 @@
-import { PP } from "../models/modelPP";
+import { ppmodel } from "../models/modelPP";
 import { ppRepository } from "../repository/ppRepository";
 
 export class PedidoProdutoService {
@@ -35,13 +35,13 @@ export class PedidoProdutoService {
   }
 
   // Buscar item por ID
-  static async findByPedido(id: number): Promise<PP[]> {
+  static async findByPedido(id: number): Promise<ppmodel[]> {
     if (!id) throw new Error("Dados ausentes (insira o id)");
     return await ppRepository.findByPedido(id);
   }
 
   // Listar todos os itens de pedidos
-  static async listar(): Promise<PP[]> {
+  static async listar(): Promise<ppmodel[]> {
     return await ppRepository.findAll();
   }
 

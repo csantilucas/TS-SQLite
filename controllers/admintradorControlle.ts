@@ -53,7 +53,12 @@ export class AdministradorController {
     // Deletar Administrador
     static async deletarUsuario(email: string, senha: string) {
         try {
-            const result = await AdministradorService.delete(email, senha);
+            const adm = await AdministradorService.findByEmail(email);
+            if (!adm) {
+                console.error("Administrador não encontrado");
+                return;
+            }
+            const result = await AdministradorService.delete(senha);
             if (result) {
                 console.log("Administrador deletado com sucesso");
             }
@@ -83,6 +88,26 @@ export class AdministradorController {
             console.error("Erro ao buscar administrador:", error.message);
         }
     }
+
+    static async buscarPorEmail(email: string) {
+        try {
+            const admin = await AdministradorService.findByEmail(email);
+            console.log("Administrador encontrado:", admin);
+            return admin;
+        } catch (error: any) {
+            console.error("Erro ao buscar administrador:", error.message);
+        }
+    }
+
+    static async deletePorId(email: string) {
+        try {
+            const result = await AdministradorService.delete(email);;
+            if (result) {
+                console.log("Administrador deletado com sucesso");
+            }
+        } catch (error: any) {
+            console.error("Erro ao deletar administrador:", error.message);
+        }
+    }
+
 }
-
-

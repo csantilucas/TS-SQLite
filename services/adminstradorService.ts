@@ -73,13 +73,9 @@ export class AdministradorService {
     }
 
     // Delete
-    static async delete(email: string, senha: string): Promise<number> {
+    static async delete(email: string): Promise<number> {
         const admin = await AdministradorRepository.findByEmail(email);
         if (!admin) throw new Error("Administrador não encontrado");
-
-        const senhaValida = compararSenha(senha, admin.senha);
-        if (!senhaValida) throw new Error("Senha incorreta");
-
         const update = await AdministradorRepository.delete(admin.administrador_id);
         return update;
     }

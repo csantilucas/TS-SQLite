@@ -1,12 +1,10 @@
-import { describe } from "node:test";
 import { Produto } from "../models/modelProduto";
 import { ProdutoRepository } from "../repository/produtoRepository";
-import { PedidoRepository } from "../repository/pedidoRepository";
-import { NOMEM } from "dns";
+
 
 export class ProdutoService {
   // Criar Produto
-  static async criar(nome: string, descricao: string, preco: number, estoque: number): Promise<number> {
+  static async criar(nome: string, descricao: string, preco: number, estoque: number): Promise<number | undefined> {
     if (!nome) throw new Error("Dados ausentes (insira um nome)");
     if (!preco) throw new Error("Dados ausentes (insira um preço)");
     if (estoque == null) throw new Error("o estoque nao pode ser vazio");

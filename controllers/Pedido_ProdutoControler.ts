@@ -1,5 +1,5 @@
 import { PedidoService } from "../services/pedidoService";
-import { PedidoProdutoService } from "../services/ppService";
+import { PedidoProdutoService } from "../services/Pedido_ProdutoService";
 import { PedidoController, StatusPedido } from "./pedidoContorller";
 import { ProdutoController } from "./produtoController";
 

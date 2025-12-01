@@ -8,7 +8,7 @@ db.all  ->  executar querys
 */
 
 import { getDB } from "../database/initDB";
-import { ppmodel } from "../models/modelPP";
+import { PedidoProdutoDetalhado, ppmodel } from "../models/modelPP";
 
 // CRUD PARA PRODUTO
 
@@ -30,14 +30,21 @@ export class ppRepository {
   }
 
   // READ BY PEDIDO
-  static async findByPedido(pedido_id: number): Promise<ppmodel[]> {
-    const db = await getDB();
-    return await db.all(`SELECT * FROM Pedido_Produto WHERE pedido_id = ?`, [pedido_id]);
+ static async findByPedido(pedido_id: number): Promise<PedidoProdutoDetalhado[]> {
+  const db = await getDB();
+  return await db.all(
+    `SELECT pp.pedido_id, pp.produto_id, p.nome, pp.quantidade, pp.preco_unitario AS preco_unitario
+     FROM Pedido_Produto pp
+     JOIN Produto p ON pp.produto_id = p.produto_id
+     WHERE pp.pedido_id = ?`,
+    [pedido_id]
+  );
+
   }
 
-  static async find(id_pedido: number,id_produto:number): Promise<ppmodel | undefined> {
+  static async find(id_pedido: number, id_produto: number): Promise<ppmodel | undefined> {
     const db = await getDB();
-    return await db.all(`SELECT * FROM Pedido_Produto WHERE pedido_id = ?, produto_id:?`, [id_pedido,id_produto]);
+    return await db.all(`SELECT * FROM Pedido_Produto WHERE pedido_id = ?, produto_id=?`, [id_pedido, id_produto]);
   }
 
 
@@ -52,24 +59,25 @@ export class ppRepository {
   }
 
   // DELETE
-  static async delete(pedido_id: number, produto_id:number): Promise<number> {
-    const db = await getDB();
-    const result = await db.run(
-      `DELETE FROM Pedido_Produto WHERE pedido_id = ?, produto_id`,
-      [pedido_id, produto_id]
-    );
-    return result.changes ?? 0;
-  }
+ static async delete(pedido_id: number, produto_id: number): Promise<number> {
+  const db = await getDB();
+  const result = await db.run(
+    `DELETE FROM Pedido_Produto WHERE pedido_id = ? AND produto_id = ?`,
+    [pedido_id, produto_id]
+  );
+  return result.changes ?? 0;
+}
 
 
-  static async deleteByPedido(pedido_id: number): Promise<number> {
-    const db = await getDB();
-    const result = await db.run(
-      `DELETE FROM Pedido_Produto WHERE pedido_id = ?0`,
-      [pedido_id]
-    );
-    return result.changes ?? 0;
-  }
+
+static async deleteByPedido(pedido_id: number): Promise<number> {
+  const db = await getDB();
+  const result = await db.run(
+    `DELETE FROM Pedido_Produto WHERE pedido_id = ?`,
+    [pedido_id]
+  );
+  return result.changes ?? 0;
+}
 }
 
 

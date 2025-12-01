@@ -13,6 +13,7 @@ import { EnderecoController } from "./controllers/enderecoController";
 import { CategoriaRepository } from "./repository/categoriaRepository";
 import { CategoriaController } from "./controllers/categoriaController";
 import { PedidoComProdutos } from "./models/modelPedido";
+import { StatusPedido } from "./models/modelPP";
 
 
 export async function menuCliente() {
@@ -65,7 +66,8 @@ export async function menuCliente() {
                     break;
             }
 
-        } else if (cliente && !adm) {//cliente
+        }
+        else if (cliente && !adm) {//cliente
             //menu
             console.log("1 - meus dados");
             console.log("2 - ver produtos");
@@ -74,12 +76,13 @@ export async function menuCliente() {
 
             switch (opcao1) {//submenu
                 case "1"://meu dados
+
                     console.log("1 - Atualizar Dados");
                     console.log("2 - Atualizar Endereço");
                     console.log("3 - Atulizar Senha")
                     console.log("4 - Apagar conta")
                     console.log("5 - ver meus pedidos")
-                    console.log("7 - ver meus endereços")
+                    console.log("6 - ver meus endereços")
                     console.log("0 - voltar");
 
                     const opcao2 = await ask("Escolha uma opção: ");
@@ -108,9 +111,9 @@ export async function menuCliente() {
                             break;
 
                         case "3"://Atualizar senha
-                            const emailSenha = await ask("Email: ");
+    
                             const novaSenha = await ask("Nova senha: ");
-                            await ClienteController.atualizarSenha(cliente.cliente_id, novaSenha, emailSenha);
+                            await ClienteController.atualizarSenha(cliente.cliente_id, novaSenha,  cliente.email);
                             break;
 
                         case "4"://apagar usuario
@@ -121,30 +124,95 @@ export async function menuCliente() {
                             break;
 
                         case "5"://ver pedidos
-                            const pedidos = await PedidoController.buscarPorCliente(cliente.cliente_id);
 
-                            if (pedidos && pedidos.length > 0) {
-                                console.log(`Seus pedidos: total ${pedidos.length}\n`);
+                            console.log("1 - ver todos os meus pedidos")
+                            console.log("2 - ver meus pedidos pendentes")
+                            console.log("3 - ver meus pedidos concluidos")
+                            console.log("4 - pagar pedido")
+                            console.log("5 - cancelar pedido")
+                            console.log("0 - voltar")
+                            const opcaoPed = await ask("Escolha uma opção: ");
 
-                                const tabela = pedidos.map(p => ({
-                                    PedidoID: p.pedido.pedido_id,
-                                    Data: p.pedido.data_pedido,
-                                    Status: p.pedido.status,
-                                    ValorTotal: p.pedido.valor_total,
-                                    Produtos: p.produtos
-                                        .map(prod =>
-                                            `${prod.produto_id} (qtd: ${prod.quantidade}, preço: ${prod.valor_unitario})`
-                                        )
-                                        .join(", ")
-                                }));
+                            switch (opcaoPed) {
+                                case "1"://ver todos
+                                    console.log("\nSeus pedidos:");
 
-                                console.table(tabela);
-                            } else {
-                                console.log("❌ Você não possui pedidos.");
+                                    const pedidos = await PedidoController.buscarPorCliente(cliente.cliente_id);
+
+                                    if (pedidos && pedidos.length > 0) {
+                                        console.log(`Seus pedidos: total ${pedidos.length}\n`);
+
+                                        const tabela = pedidos.map(p => ({
+                                            PedidoID: p.pedido.pedido_id,
+                                            Data: p.pedido.data_pedido,
+                                            Status: p.pedido.status,
+                                            ValorTotal: p.pedido.valor_total,
+                                            Produtos: p.produtos
+                                                .map((prod: { produto_id: number; nome: string; quantidade: number; preco_unitario: number }) =>
+                                                    `${prod.nome} (id: ${prod.produto_id}, qtd: ${prod.quantidade}, preço: ${prod.preco_unitario})`
+                                                )
+                                                .join(", ")
+                                        }));
+
+
+                                        console.table(tabela);
+                                    } else {
+                                        console.log("❌ Você não possui pedidos.");
+                                    }
+                                    break;
+
+                                case "2"://ver pendentes
+                                    console.log("\nSeus pedidos pendentes:");
+                                    const pedidosPendentes = await PedidoController.listarPendentes(cliente.cliente_id);
+                                    if (pedidosPendentes.length > 0) {
+                                        const tabelaPendentes = pedidosPendentes.map(p => ({
+                                            PedidoID: p.pedido.pedido_id, Data: p.pedido.data_pedido, Status: p.pedido.status, ValorTotal: p.pedido.valor_total, Produtos: p.produtos.map(
+                                                prod =>
+                                                    `${prod.nome} (qtd: ${prod.quantidade}, preço: ${prod.preco_unitario})`
+                                            )
+                                                .join(", ")
+                                        }));
+                                        console.table(tabelaPendentes);
+                                    } else {
+                                        console.log("❌ Você não possui pedidos pendentes.");
+                                    }
+                                    break;
+
+                                case "3"://ver concluidos
+                                    console.log("\nSeus pedidos concluidos:");
+                                    const pedidosConcluidos = await PedidoController.listarConcluidos(cliente.cliente_id);
+                                    if (pedidosConcluidos.length > 0) {
+                                        const tabelaConcluidos = pedidosConcluidos.map(p => ({
+                                            PedidoID: p.pedido.pedido_id, Data: p.pedido.data_pedido, Status: p.pedido.status, ValorTotal: p.pedido.valor_total, Produtos: p.produtos.map(
+                                                prod =>
+                                                    `${prod.nome} (qtd: ${prod.quantidade}, preço: ${prod.preco_unitario})`
+                                            )
+                                                .join(", ")
+                                        }));
+                                        console.table(tabelaConcluidos);
+                                    } else {
+                                        console.log("❌ Você não possui pedidos concluídos.");
+                                    }
+                                    break;
+
+
+                                case "4"://pagar pedido
+                                    const idPagar = Number(await ask("ID do pedido que deseja pagar: "));
+                                    await PedidoController.atualizarStatus(idPagar, StatusPedido.Concluido);
+                                    break;
+
+                                case "5"://cancelar pedido
+                                    const idCancelar = Number(await ask("ID do pedido que deseja cancelar: "));
+                                    await PedidoController.deletar(idCancelar);
+                                    break;
+                                case "0"://sair
+                                    console.log("voltando...");
+                                    break;
                             }
+
                             break;
 
-                        case "7"://ver endereços
+                        case "6"://ver endereços
                             const meusEnderecos = await ClienteController.verEndereco(cliente.cliente_id);
                             console.log("\nSeus endereços atuais:");
                             console.table(meusEnderecos);
@@ -168,61 +236,6 @@ export async function menuCliente() {
                             }
                             break
 
-                        case "2":// produtos
-
-                            console.log("\n--------------------------------------produtos------------------------------------------")
-                            console.log("1 - ver todos os produtos")
-                            console.log("2 - listar por categoria")
-                            console.log("3 - Procurar por nome do produto")
-
-                            let opcao = await ask("Escolha uma opçao: ")
-                            switch (opcao) {
-                                case "1": // listar todos
-                                    await ProdutoController.listarTodos()
-
-                                    console.log("1 - criar pedido")
-                                    const opcao = await ask("Escolha uma opção: ");
-
-                                    switch (opcao) {
-
-                                        case "1":
-                                            await PedidoProdutoController.criarPedido(cliente.cliente_id, ask)
-                                            break
-                                    }
-
-
-                                    break
-                                case "2":// pela categoria
-                                    let nomec = await ask("Categoria: ")
-                                    await ProdutoController.buscarPorCategoria(nomec)
-
-                                    console.log("1 - criar pedido")
-                                    const opcao1 = await ask("Escolha uma opção: ");
-
-                                    switch (opcao1) {
-
-                                        case "1":
-                                            await PedidoProdutoController.criarPedido(cliente.cliente_id, ask)
-                                            break
-                                    }
-                                    break
-                                case "3":// pelo nome
-                                    let nomep = await ask("Produto: ")
-                                    await ProdutoController.buscarPorNome(nomep)
-
-                                    console.log("1 - criar pedido")
-                                    const opcao2 = await ask("Escolha uma opção: ");
-
-                                    switch (opcao2) {
-
-                                        case "1":
-                                            await PedidoProdutoController.criarPedido(cliente.cliente_id, ask)
-                                            break
-                                    }
-                                    break
-                            }
-                            break
-
                         case "0"://sair
                             console.log("Logof...");
                             cliente = undefined
@@ -232,8 +245,10 @@ export async function menuCliente() {
 
                         default:
                             console.log("❌ Opção inválida");
+                            break;
                     }
                     break;
+                  
                 case "2":// produtos
 
                     console.log("\n--------------------------------------produtos------------------------------------------\n")
@@ -306,7 +321,8 @@ export async function menuCliente() {
                 default:
                     console.log("❌ Opção inválida");
             }
-        } else if (adm && !cliente) {
+        }
+        else if (adm && !cliente) {
             console.log("\n=== MENU ADMINISTRADOR ===");
             console.log("1 - Ver todos os clientes");
             console.log("2 - Ver produtos");

@@ -1,13 +1,11 @@
 import { PedidoComProdutos } from "../models/modelPedido";
-import { ppmodel } from "../models/modelPP";
+import { ppmodel, StatusPedido } from "../models/modelPP";
 import { PedidoService } from "../services/pedidoService";
 import { PedidoProdutoService } from "../services/Pedido_ProdutoService";
+import { stat } from "fs";
 
-export enum StatusPedido {
-    ABERTO = "pedido em aberto",
-    PENDENTE = "pedido em pendencia",
-    FINALIZADO = "pedido concluido"
-}
+
+
 
 export class PedidoController {
 
@@ -15,7 +13,7 @@ export class PedidoController {
     static async criar(clienteId: number, status: StatusPedido, produtos: ppmodel[]) {
         try {
             // 1. calcular total do pedido
-            const total = produtos.reduce((acc, item) => acc + item.valor_unitario * item.quantidade, 0);
+            const total = produtos.reduce((acc, item) => acc + item.preco_unitario * item.quantidade, 0);
 
             // 2. criar o pedido com o total calculado
             const pedidoId = await PedidoService.criar(clienteId, status, total);
@@ -23,7 +21,7 @@ export class PedidoController {
 
             // 3. vincular os produtos ao pedido
             for (const item of produtos) {
-                await PedidoProdutoService.criar(pedidoId, item.produto_id, item.quantidade, item.valor_unitario);
+                await PedidoProdutoService.criar(pedidoId, item.produto_id, item.quantidade, item.preco_unitario);
             }
 
             console.log("✅ Produtos vinculados ao pedido");
@@ -46,10 +44,7 @@ export class PedidoController {
                 // busca os produtos vinculados a cada pedido
                 const produtos = await PedidoProdutoService.findByPedido(pedido.pedido_id);
 
-                resultado.push({
-                    pedido,
-                    produtos
-                });
+                resultado.push({ pedido, produtos });
             }
 
             console.table(resultado.map(r => ({
@@ -70,27 +65,21 @@ export class PedidoController {
 
 
     // Buscar pedidos por cliente
-    static async buscarPorCliente(clienteId: number | undefined) {
-        if (clienteId) {
-            try {
-                const pedidos = await PedidoService.findByClienteId(clienteId);
-                if (!pedidos || pedidos.length === 0) {
-                    console.log("Nenhum pedido encontrado para este cliente");
-                    return;
-                }
-
-                // para cada pedido, buscar produtos vinculados
-                const resultado = [];
-                for (const pedido of pedidos) {
-                    const produtos = await PedidoProdutoService.findByPedido(pedido.pedido_id);
-                    resultado.push({ pedido, produtos });
-                }
-
-                console.log("Pedidos encontrados:", resultado);
-                return resultado;
-            } catch (error: any) {
-                console.error("Erro ao buscar pedidos por cliente:", error.message);
+   static async buscarPorCliente(clienteId: number): Promise<PedidoComProdutos[] | void> {
+        try {
+            const pedidos = await PedidoService.findByClienteId(clienteId);
+            if (pedidos.length === 0) {
+                console.log("❌ Nenhum pedido encontrado para este cliente.");
+                return;
             }
+            const resultado: PedidoComProdutos[] = [];
+            for (const pedido of pedidos) {
+                const produtos = await PedidoProdutoService.findByPedido(pedido.pedido_id);
+                resultado.push({ pedido, produtos });
+            }
+            return resultado;
+        } catch (error: any) {
+            console.error("Erro ao buscar pedidos por cliente:", error.message);
         }
     }
 
@@ -116,24 +105,22 @@ export class PedidoController {
 
     // Deletar pedido (e seus produtos vinculados)
     static async deletar(pedidoId: number) {
-        try {
-            const produtos = await PedidoProdutoService.findByPedido(pedidoId);
-            for (const item of produtos) {
-                await PedidoProdutoService.delete(item.pedido_id, item.produto_id);
-            }
-
-            await PedidoService.delete(pedidoId);
-            console.log("✅ Pedido e produtos vinculados deletados com sucesso");
-        } catch (error: any) {
-            console.error("Erro ao deletar pedido:", error.message);
+    try {
+        const produtos = await PedidoProdutoService.findByPedido(pedidoId);
+        for (const item of produtos) {
+            await PedidoProdutoService.delete(pedidoId, item.produto_id);
         }
+
+        await PedidoService.delete(pedidoId);
+        console.log("✅ Pedido e produtos vinculados deletados com sucesso");
+    } catch (error: any) {
+        console.error("Erro ao deletar pedido:", error.message);
     }
+}
+
 
     // Atualizar pedido (ex: atualizar produtos vinculados)
-    static async atualizar(
-        pedidoId: number,
-        produtos: { produtoId: number, quantidade: number, preco: number }[]
-    ) {
+    static async atualizar(pedidoId: number, produtos: { produtoId: number, quantidade: number, preco: number }[]) {
         try {
             // remove os produtos antigos
             const antigos = await PedidoProdutoService.findByPedido(pedidoId);
@@ -150,6 +137,46 @@ export class PedidoController {
             console.log("✅ Pedido atualizado com sucesso");
         } catch (error: any) {
             console.error("Erro ao atualizar pedido:", error.message);
+        }
+    }
+
+    static async listarPendentes(cliente_id:number,): Promise<PedidoComProdutos[]> {
+        try {
+            const pedidos = await PedidoService.findByStatusPendente(cliente_id); // lista pedidos pendentes
+            const resultado: PedidoComProdutos[] = [];
+            for (const pedido of pedidos) {
+                const produtos = await PedidoProdutoService.findByPedido(pedido.pedido_id);
+                resultado.push({ pedido, produtos });
+            }
+            return resultado;
+        } catch (error: any) {
+            console.error("Erro ao listar pedidos pendentes:", error.message);
+            return [];
+        }
+    }
+
+    static async listarConcluidos(cliente_id:number): Promise<PedidoComProdutos[]> {   
+        try {
+            const pedidos = await PedidoService.findByStatusConcluido(cliente_id);
+            const resultado: PedidoComProdutos[] = [];
+            for (const pedido of pedidos) {
+                const produtos = await PedidoProdutoService.findByPedido(pedido.pedido_id);
+                resultado.push({ pedido, produtos });
+            }
+            return resultado;
+        }
+        catch (error: any) {
+            console.error("Erro ao listar pedidos concluídos:", error.message);
+            return [];
+        }       
+    }
+
+    static async atualizarStatus(pedidoId: number, status: StatusPedido) {
+        try {
+            const linhasAfetadas = await PedidoService.atualizarStatus(pedidoId, status);   
+            console.log(`✅ Status do pedido atualizado. Linhas afetadas: ${linhasAfetadas}`);
+        } catch (error: any) {
+            console.error("Erro ao atualizar status do pedido:", error.message);
         }
     }
 

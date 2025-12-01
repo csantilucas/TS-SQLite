@@ -4,39 +4,55 @@ import { PedidoRepository } from "../repository/pedidoRepository";
 
 export class PedidoService {
     // Criar Pedido
-    static async criar(clienteId: number, status: string, valor: number): Promise<number> {
-
+    static async criar(clienteId: number, status: string, valor_total: number): Promise<number> {
         if (!clienteId) throw new Error("Dados ausentes (insira o clienteId)");
-        const cliente = await ClienteRepository.findByID(clienteId)
-        if (!cliente) throw new Error("Usuario nao encontrado")
 
-        if (!valor) throw new Error("Dados ausentes (insira um valor)");
+        const cliente = await ClienteRepository.findByID(clienteId);
+        if (!cliente) throw new Error("Usuário não encontrado");
+
+        if (valor_total === undefined || valor_total === null) {
+            throw new Error("Dados ausentes (insira um valor)");
+        }
         if (!status) throw new Error("Dados ausentes (insira um status)");
 
-        const pedidoId = await PedidoRepository.create(clienteId, status, valor);
+        const pedidoId = await PedidoRepository.create(clienteId, status, valor_total);
         return pedidoId ?? 0;
     }
 
-    // Atualizar Pedido
-    static async atualizar(id: number, status: string): Promise<number> {
+    // Atualizar Pedido (status e opcionalmente valor_total)
+    static async atualizar(id: number, status: string, valor_total?: number): Promise<number> {
         if (!id) throw new Error("Dados ausentes (insira o id)");
         if (!status) throw new Error("Dados ausentes (insira um status)");
 
-        const linhasAfetadas = await PedidoRepository.update(id, status);
+        const linhasAfetadas = await PedidoRepository.update(id, status, valor_total);
+        return linhasAfetadas;
+    }
+
+    static async atualizarStatus(id: number, status: string): Promise<number> {
+        if (!id) throw new Error("Dados ausentes (insira o id)");
+        if (!status) throw new Error("Dados ausentes (insira um status)");
+        const linhasAfetadas = await PedidoRepository.updateStatus(id, status);
         return linhasAfetadas;
     }
 
     // Buscar Pedido por ID do cliente
-    static async findByClienteId(id: number): Promise<Pedido[]> {
-        if (!id) throw new Error("Dados ausentes (insira o id)");
-        const pedidos = await PedidoRepository.findByClienteId(id);
-        return pedidos
+    static async findByClienteId(clienteId: number): Promise<Pedido[]> {
+        if (!clienteId) throw new Error("Dados ausentes (insira o clienteId)");
+        return await PedidoRepository.findByClienteId(clienteId);
     }
-    // Buscar Pedido por ID do cliente
-    static async findById(id: number): Promise<Pedido | undefined> {
-        if (!id) throw new Error("Dados ausentes (insira o id)");
-        const pedido = await PedidoRepository.findById(id);
-        return pedido;
+
+    // Buscar Pedido por ID
+    static async findById(pedidoId: number): Promise<Pedido | undefined> {
+        if (!pedidoId) throw new Error("Dados ausentes (insira o pedidoId)");
+        return await PedidoRepository.findById(pedidoId);
+    }
+
+    static async findByStatusPendente(cliente_id:number): Promise<Pedido[]> {
+        return await PedidoRepository.findByStatusPendente(cliente_id);
+    }
+
+    static async findByStatusConcluido(cliente_id:number): Promise<Pedido[]> {
+        return await PedidoRepository.findByStatusConcluido(cliente_id);
     }
 
     // Listar todos os pedidos
@@ -45,30 +61,22 @@ export class PedidoService {
     }
 
     // Deletar Pedido
-    static async delete(id: number): Promise<string> {
-        if (!id) throw new Error("Dados ausentes (insira o id)");
+    static async delete(pedidoId: number): Promise<string> {
+        if (!pedidoId) throw new Error("Dados ausentes (insira o pedidoId)");
 
-        const pedidos = await PedidoRepository.delete(id);
-        if (!pedidos) throw new Error("Pedido não encontrado");
+        const linhasAfetadas = await PedidoRepository.delete(pedidoId);
+        if (!linhasAfetadas) throw new Error("Pedido não encontrado");
 
-        return "Pedido deletado com sucesso";
+        return "✅ Pedido deletado com sucesso";
     }
 
-    static async deleteByCliente(id: number): Promise<string> {
-        if (!id) throw new Error("Dados ausentes (insira o id)");
+    // Deletar todos os pedidos de um cliente
+    static async deleteByCliente(clienteId: number): Promise<string> {
+        if (!clienteId) throw new Error("Dados ausentes (insira o clienteId)");
 
-        const pedidos = await PedidoRepository.deleteByCliente(id);
-        if (!pedidos) throw new Error("Pedido não encontrado");
+        const linhasAfetadas = await PedidoRepository.deleteByCliente(clienteId);
+        if (!linhasAfetadas) throw new Error("Nenhum pedido encontrado para este cliente");
 
-        return "Pedido deletado com sucesso";
+        return "✅ Todos os pedidos do cliente foram deletados com sucesso";
     }
 }
-
-
-
-//PedidoRepository.create(3,'aberto',0)
-//PedidoService.findByClienteId(3)
-//PedidoService.deleteByCliente(3)
-
-//PedidoService.listar().then(res => console.table(res))
-

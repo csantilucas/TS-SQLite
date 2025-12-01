@@ -1,14 +1,25 @@
-export interface ppmodel{
-    pedido_nome:string
-    pedido_id:number
-    produto_id:number
-    quantidade:number
-    valor_unitario:number
+export interface ppmodel {
+  pedido_id: number;
+  produto_id: number;
+  nome: string;
+  quantidade: number;
+  preco_unitario: number; // não valor_unitario
 }
 
-enum StatusPedido {
-    ABERTO = "pedido em aberto",
-    PENDENTE = "pedido em pendencia",
-    FINALIZADO = "pedido concluido"
+export interface PedidoProdutoDetalhado {
+  pedido_id: number;
+  produto_id: number;
+  nome: string;
+  quantidade: number;
+  preco_unitario: number; // não valor_unitario
+}
+
+
+
+
+
+export enum StatusPedido {
+    Pendente = "pedido em pendencia de pagamento",
+    Concluido= "pedido pago e finalizado"
 }
 

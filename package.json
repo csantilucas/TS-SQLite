@@ -6,14 +6,22 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/csantilucas/TS-SQLite.git"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/csantilucas/TS-SQLite/issues"
+  },
+  "homepage": "https://github.com/csantilucas/TS-SQLite#readme",
   "dependencies": {
     "@types/node": "^24.10.1",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7",
-    "tsx": "^4.20.6",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
 }

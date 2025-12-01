@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS logs (
 
 -- Trigger para diminuir estoque ao inserir um item no pedido
 CREATE TRIGGER atualizar_estoque_depois_insert
-AFTER INSERT ON PedidoItem
+AFTER INSERT ON Pedido_Produto
 FOR EACH ROW
 BEGIN
     UPDATE Produto
@@ -127,7 +127,7 @@ END;
 
 -- Trigger para restaurar estoque ao deletar item do pedido
 CREATE TRIGGER restaurar_estoque_depois_delete
-AFTER DELETE ON PedidoItem
+AFTER DELETE ON Pedido_Produto
 FOR EACH ROW
 BEGIN
     UPDATE Produto
@@ -137,6 +137,7 @@ END;
 
 
 `;
+
 const triggers =`
 
 -- ===========================
@@ -282,8 +283,11 @@ BEGIN
     VALUES (0, 'DELETE em Pedido_Produto: pedido_id=' || OLD.pedido_id || ', produto_id=' || OLD.produto_id);
 END;
 
-CREATE TRIGGER IF NOT EXISTS atualizar_valor_total
-AFTER INSERT OR UPDATE OR DELETE ON Pedido_Produto
+
+------- atulizar valores
+
+CREATE TRIGGER IF NOT EXISTS atualizar_valor_total_insert
+AFTER INSERT ON Pedido_Produto
 BEGIN
   UPDATE Pedido
   SET valor_total = (
@@ -294,45 +298,31 @@ BEGIN
   WHERE pedido_id = NEW.pedido_id;
 END;
 
+CREATE TRIGGER IF NOT EXISTS atualizar_valor_total_update
+AFTER UPDATE ON Pedido_Produto
+BEGIN
+  UPDATE Pedido
+  SET valor_total = (
+    SELECT SUM(quantidade * preco_unitario)
+    FROM Pedido_Produto
+    WHERE pedido_id = NEW.pedido_id
+  )
+  WHERE pedido_id = NEW.pedido_id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS atualizar_valor_total_delete
+AFTER DELETE ON Pedido_Produto
+BEGIN
+  UPDATE Pedido
+  SET valor_total = (
+    SELECT SUM(quantidade * preco_unitario)
+    FROM Pedido_Produto
+    WHERE pedido_id = OLD.pedido_id
+  )
+  WHERE pedido_id = OLD.pedido_id;
+END;
 
 
-------- atulizar valores
-
-CREATE TRIGGER IF NOT EXISTS atualizar_valor_total_insert
-      AFTER INSERT ON Pedido_Produto
-      BEGIN
-        UPDATE Pedido
-        SET valor_total = (
-          SELECT SUM(quantidade * preco_unitario)
-          FROM Pedido_Produto
-          WHERE pedido_id = NEW.pedido_id
-        )
-        WHERE pedido_id = NEW.pedido_id;
-      END;
-
-      CREATE TRIGGER IF NOT EXISTS atualizar_valor_total_update
-      AFTER UPDATE ON Pedido_Produto
-      BEGIN
-        UPDATE Pedido
-        SET valor_total = (
-          SELECT SUM(quantidade * preco_unitario)
-          FROM Pedido_Produto
-          WHERE pedido_id = NEW.pedido_id
-        )
-        WHERE pedido_id = NEW.pedido_id;
-      END;
-
-      CREATE TRIGGER IF NOT EXISTS atualizar_valor_total_delete
-      AFTER DELETE ON Pedido_Produto
-      BEGIN
-        UPDATE Pedido
-        SET valor_total = (
-          SELECT SUM(quantidade * preco_unitario)
-          FROM Pedido_Produto
-          WHERE pedido_id = OLD.pedido_id
-        )
-        WHERE pedido_id = OLD.pedido_id;
-      END;
 
     ------------
 
@@ -363,12 +353,14 @@ BEGIN
 END;
 
 
-`
+`;
 
 const triggersAdm=`
+-- =========================================
+-- TRIGGERS PARA ADMINISTRADOR
+-- =========================================
 
-
--- Trigger para INSERT
+-- Trigger para INSERT em Administrador
 CREATE TRIGGER trg_insert_administrador
 AFTER INSERT ON administrador
 BEGIN
@@ -376,7 +368,7 @@ BEGIN
     VALUES (NEW.administrador_id, 'INSERT', 'Administrador criado');
 END;
 
--- Trigger para UPDATE
+-- Trigger para UPDATE em Administrador
 CREATE TRIGGER trg_update_administrador
 AFTER UPDATE ON administrador
 BEGIN
@@ -384,7 +376,7 @@ BEGIN
     VALUES (NEW.administrador_id, 'UPDATE', 'Administrador atualizado');
 END;
 
--- Trigger para DELETE
+-- Trigger para DELETE em Administrador
 CREATE TRIGGER trg_delete_administrador
 AFTER DELETE ON administrador
 BEGIN
@@ -393,8 +385,64 @@ BEGIN
 END;
 
 
-`
+-- =========================================
+-- TRIGGERS PARA PRODUTO
+-- =========================================
 
+-- Trigger para INSERT em Produto
+CREATE TRIGGER trg_insert_produto
+AFTER INSERT ON Produto
+BEGIN
+    INSERT INTO log_administrador(administrador_id, acao, detalhes)
+    VALUES (NEW.administrador_id, 'INSERT', 'Produto criado: ' || NEW.produto_id);
+END;
+
+-- Trigger para UPDATE em Produto
+CREATE TRIGGER trg_update_produto
+AFTER UPDATE ON Produto
+BEGIN
+    INSERT INTO log_administrador(administrador_id, acao, detalhes)
+    VALUES (NEW.administrador_id, 'UPDATE', 'Produto atualizado: ' || NEW.produto_id);
+END;
+
+-- Trigger para DELETE em Produto
+CREATE TRIGGER trg_delete_produto
+AFTER DELETE ON Produto
+BEGIN
+    INSERT INTO log_administrador(administrador_id, acao, detalhes)
+    VALUES (OLD.administrador_id, 'DELETE', 'Produto removido: ' || OLD.produto_id);
+END;
+
+
+-- =========================================
+-- TRIGGERS PARA CATEGORIA
+-- =========================================
+
+-- Trigger para INSERT em Categoria
+CREATE TRIGGER trg_insert_categoria
+AFTER INSERT ON Categoria
+BEGIN
+    INSERT INTO log_administrador(administrador_id, acao, detalhes)
+    VALUES (NEW.administrador_id, 'INSERT', 'Categoria criada: ' || NEW.categoria_id);
+END;
+
+-- Trigger para UPDATE em Categoria
+CREATE TRIGGER trg_update_categoria
+AFTER UPDATE ON Categoria
+BEGIN
+    INSERT INTO log_administrador(administrador_id, acao, detalhes)
+    VALUES (NEW.administrador_id, 'UPDATE', 'Categoria atualizada: ' || NEW.categoria_id);
+END;
+
+-- Trigger para DELETE em Categoria
+CREATE TRIGGER trg_delete_categoria
+AFTER DELETE ON Categoria
+BEGIN
+    INSERT INTO log_administrador(administrador_id, acao, detalhes)
+    VALUES (OLD.administrador_id, 'DELETE', 'Categoria removida: ' || OLD.categoria_id);
+END;
+
+`;
 
 export async function createTables() {
     const db = await getDB();

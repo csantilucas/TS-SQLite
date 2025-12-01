@@ -1,18 +1,21 @@
-@echo off
-echo 🔄 Resetando ambiente npm...
+#!/bin/bash
+echo "🔄 Resetando ambiente npm..."
 
-rd /s /q node_modules
-del package-lock.json
-del package.json
+# Remover node_modules e arquivos de lock/config
+rm -rf node_modules
+rm -f package-lock.json
+rm -f package.json
 
-echo 🧹 Limpando cache...
+echo "🧹 Limpando cache..."
 npm cache clean --force
 
-echo 📦 Criando novo package.json...
+echo "📦 Criando novo package.json..."
 npm init -y
 
-echo 📦 Instalando dependências...
-npm install tsx typescript @types/node sqlite3 sqlite --no-optional
-npm install sqlite3 --build-from-source
+echo "📦 Instalando dependências..."
+npm install tsx typescript @types/node sqlite sqlite3 --no-optional
 
-echo ✅ Ambiente resetado e pacotes reinstalados!
+echo "🔨 Recompilando sqlite3 do zero..."
+npm rebuild sqlite3 --build-from-source
+
+echo "✅ Ambiente resetado e pacotes reinstalados!"

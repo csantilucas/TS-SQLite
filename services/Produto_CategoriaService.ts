@@ -43,7 +43,7 @@ export class ProdutoCategoriaService {
     return "Relação produto-categoria deletada com sucesso";
   }
 
-   static async deleteByProduto(id: number): Promise<string> {
+  static async deleteByProduto(id: number): Promise<string> {
     if (!id) throw new Error("Erro ao excluir o pedido. Dados ausentes (insira o id)");
 
     const linhasAfetadas = await ProdutoCategoriaRepository.deleteByProduto(id);
@@ -52,15 +52,16 @@ export class ProdutoCategoriaService {
     return "Relação produto-categoria deletada com sucesso";
   }
 
-   static async deleteBy_Produto_Produto(idC: number, idP:number): Promise<string> {
-    if (!idC) throw new Error("Erro ao excluir o pedido. Dados ausentes (insira o id da categoria)");
-    if (!idP) throw new Error("Erro ao excluir o pedido. Dados ausentes (insira o id do produto)");
+  static async deleteBy_Produto_Categoria(idP: number, idC: number): Promise<string> {
+    if (!idP) throw new Error("Erro ao excluir a relação. Dados ausentes (insira o id do produto)");
+    if (!idC) throw new Error("Erro ao excluir a relação. Dados ausentes (insira o id da categoria)");
 
-    const linhasAfetadas = await ProdutoCategoriaRepository.deleteByProduto_Categoria(idC, idP);
-    if (linhasAfetadas === 0) throw new Error("Relação produto-categoria não encontrada");
+    const linhasAfetadas = await ProdutoCategoriaRepository.deleteByProduto_Categoria(idP, idC);
+    if (linhasAfetadas == 0) throw new Error("Relação produto-categoria não encontrada");
 
     return "Relação produto-categoria deletada com sucesso";
   }
+
 }
 
 // ProdutoService.listar().then(res => console.table(res))

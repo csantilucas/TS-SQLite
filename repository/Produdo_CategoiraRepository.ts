@@ -52,9 +52,13 @@ export class ProdutoCategoriaRepository {
     return result.changes ?? 0;
   }
 
-  static async deleteByProduto_Categoria(idC: number, idP:number): Promise<number> {
+  static async deleteByProduto_Categoria(idC: number, idP: number): Promise<number> {
     const db = await getDB();
-    const result = await db.run(`DELETE FROM Produto_Categoria WHERE categoria_id = ? AND WHERE produto_id=?`, [idC,idP]);
+    const result = await db.run(
+      `DELETE FROM Produto_Categoria WHERE produto_id = ? AND categoria_id = ?`,
+      [idP, idC]
+    );
     return result.changes ?? 0;
   }
+
 }

@@ -138,9 +138,7 @@ END;
 
 `;
 
-const triggers =`
-
--- ===========================
+const triggers =`-- ===========================
 -- TRIGGERS PARA CLIENTE
 -- ===========================
 
@@ -172,6 +170,7 @@ BEGIN
     VALUES (OLD.cliente_id, 'DELETE em Cliente: nome=' || OLD.nome || ', email=' || OLD.email);
 END;
 
+
 -- ===========================
 -- TRIGGERS PARA ENDERECO
 -- ===========================
@@ -190,73 +189,32 @@ BEGIN
     VALUES (OLD.cliente_id, 'DELETE em Endereco: rua=' || OLD.rua || ', numero=' || OLD.numero);
 END;
 
--- ===========================
--- TRIGGERS PARA PRODUTO
--- ===========================
-
-CREATE TRIGGER IF NOT EXISTS log_insert_produto
-AFTER INSERT ON Produto
-BEGIN
-    INSERT INTO logs (usuario_id, acao)
-    VALUES (0, 'INSERT em Produto: nome=' || NEW.nome || ', preco=' || NEW.preco);
-END;
-
-CREATE TRIGGER IF NOT EXISTS log_update_produto
-AFTER UPDATE ON Produto
-BEGIN
-    INSERT INTO logs (usuario_id, acao)
-    VALUES (0, 'UPDATE em Produto: nome antigo=' || OLD.nome || ', novo nome=' || NEW.nome);
-END;
-
-CREATE TRIGGER IF NOT EXISTS log_delete_produto
-AFTER DELETE ON Produto
-BEGIN
-    INSERT INTO logs (usuario_id, acao)
-    VALUES (0, 'DELETE em Produto: nome=' || OLD.nome || ', preco=' || OLD.preco);
-END;
 
 -- ===========================
--- TRIGGERS PARA CATEGORIA
+-- TRIGGERS PARA PEDIDO
 -- ===========================
 
-CREATE TRIGGER IF NOT EXISTS log_insert_categoria
-AFTER INSERT ON Categoria
+CREATE TRIGGER IF NOT EXISTS log_insert_pedido
+AFTER INSERT ON Pedido
 BEGIN
     INSERT INTO logs (usuario_id, acao)
-    VALUES (0, 'INSERT em Categoria: nome=' || NEW.nome);
+    VALUES (NEW.cliente_id, 'INSERT em Pedido: pedido_id=' || NEW.pedido_id);
 END;
 
-CREATE TRIGGER IF NOT EXISTS log_update_categoria
-AFTER UPDATE ON Categoria
+CREATE TRIGGER IF NOT EXISTS log_update_pedido
+AFTER UPDATE ON Pedido
 BEGIN
     INSERT INTO logs (usuario_id, acao)
-    VALUES (0, 'UPDATE em Categoria: nome antigo=' || OLD.nome || ', novo nome=' || NEW.nome);
+    VALUES (NEW.cliente_id, 'UPDATE em Pedido: pedido_id=' || NEW.pedido_id || ', status=' || NEW.status);
 END;
 
-CREATE TRIGGER IF NOT EXISTS log_delete_categoria
-AFTER DELETE ON Categoria
+CREATE TRIGGER IF NOT EXISTS log_delete_pedido
+AFTER DELETE ON Pedido
 BEGIN
     INSERT INTO logs (usuario_id, acao)
-    VALUES (0, 'DELETE em Categoria: nome=' || OLD.nome);
+    VALUES (OLD.cliente_id, 'DELETE em Pedido: pedido_id=' || OLD.pedido_id);
 END;
 
--- ===========================
--- TRIGGERS PARA PRODUTO_CATEGORIA
--- ===========================
-
-CREATE TRIGGER IF NOT EXISTS log_insert_categoria_on_produto
-AFTER INSERT ON Produto_Categoria
-BEGIN
-    INSERT INTO logs (usuario_id, acao)
-    VALUES (0, 'INSERT em Produto_Categoria: produto_id=' || NEW.produto_id || ', categoria_id=' || NEW.categoria_id);
-END;
-
-CREATE TRIGGER IF NOT EXISTS log_remove_categoria_on_produto
-AFTER DELETE ON Produto_Categoria
-BEGIN
-    INSERT INTO logs (usuario_id, acao)
-    VALUES (0, 'DELETE em Produto_Categoria: produto_id=' || OLD.produto_id || ', categoria_id=' || OLD.categoria_id);
-END;
 
 -- ===========================
 -- TRIGGERS PARA PEDIDO_PRODUTO
@@ -266,26 +224,25 @@ CREATE TRIGGER IF NOT EXISTS log_create_pedido_produto
 AFTER INSERT ON Pedido_Produto
 BEGIN
     INSERT INTO logs (usuario_id, acao)
-    VALUES (0, 'INSERT em Pedido_Produto: pedido_id=' || NEW.pedido_id || ', produto_id=' || NEW.produto_id || ', quantidade=' || NEW.quantidade);
+    VALUES (NEW.pedido_id, 'INSERT em Pedido_Produto: produto_id=' || NEW.produto_id || ', quantidade=' || NEW.quantidade);
 END;
 
 CREATE TRIGGER IF NOT EXISTS log_update_pedido_produto
 AFTER UPDATE ON Pedido_Produto
 BEGIN
     INSERT INTO logs (usuario_id, acao)
-    VALUES (0, 'UPDATE em Pedido_Produto: pedido_id=' || NEW.pedido_id || ', produto_id=' || NEW.produto_id || ', quantidade=' || NEW.quantidade);
+    VALUES (NEW.pedido_id, 'UPDATE em Pedido_Produto: produto_id=' || NEW.produto_id || ', quantidade=' || NEW.quantidade);
 END;
 
 CREATE TRIGGER IF NOT EXISTS log_delete_pedido_produto
 AFTER DELETE ON Pedido_Produto
 BEGIN
     INSERT INTO logs (usuario_id, acao)
-    VALUES (0, 'DELETE em Pedido_Produto: pedido_id=' || OLD.pedido_id || ', produto_id=' || OLD.produto_id);
+    VALUES (OLD.pedido_id, 'DELETE em Pedido_Produto: produto_id=' || OLD.produto_id);
 END;
 
 
-------- atulizar valores
-
+-- Atualizar valor total do pedido
 CREATE TRIGGER IF NOT EXISTS atualizar_valor_total_insert
 AFTER INSERT ON Pedido_Produto
 BEGIN
@@ -321,47 +278,15 @@ BEGIN
   )
   WHERE pedido_id = OLD.pedido_id;
 END;
-
-
-
-    ------------
-
-
--- ===========================
--- TRIGGERS PARA PEDIDO
--- ===========================
-
-CREATE TRIGGER IF NOT EXISTS log_insert_pedido
-AFTER INSERT ON Pedido
-BEGIN
-    INSERT INTO logs (usuario_id, acao)
-    VALUES (NEW.cliente_id, 'INSERT em Pedido: pedido_id=' || NEW.pedido_id);
-END;
-
-CREATE TRIGGER IF NOT EXISTS log_update_pedido
-AFTER UPDATE ON Pedido
-BEGIN
-    INSERT INTO logs (usuario_id, acao)
-    VALUES (NEW.cliente_id, 'UPDATE em Pedido: pedido_id=' || NEW.pedido_id || ', status=' || NEW.status);
-END;
-
-CREATE TRIGGER IF NOT EXISTS log_delete_pedido
-AFTER DELETE ON Pedido
-BEGIN
-    INSERT INTO logs (usuario_id, acao)
-    VALUES (OLD.cliente_id, 'DELETE em Pedido: pedido_id=' || OLD.pedido_id);
-END;
-
-
-`;
+`
 
 const triggersAdm=`
--- =========================================
+    -- =========================================
 -- TRIGGERS PARA ADMINISTRADOR
 -- =========================================
 
 -- Trigger para INSERT em Administrador
-CREATE TRIGGER trg_insert_administrador
+CREATE TRIGGER IF NOT EXISTS trg_insert_administrador
 AFTER INSERT ON administrador
 BEGIN
     INSERT INTO log_administrador(administrador_id, acao, detalhes)
@@ -369,7 +294,7 @@ BEGIN
 END;
 
 -- Trigger para UPDATE em Administrador
-CREATE TRIGGER trg_update_administrador
+CREATE TRIGGER IF NOT EXISTS trg_update_administrador
 AFTER UPDATE ON administrador
 BEGIN
     INSERT INTO log_administrador(administrador_id, acao, detalhes)
@@ -377,7 +302,7 @@ BEGIN
 END;
 
 -- Trigger para DELETE em Administrador
-CREATE TRIGGER trg_delete_administrador
+CREATE TRIGGER IF NOT EXISTS trg_delete_administrador
 AFTER DELETE ON administrador
 BEGIN
     INSERT INTO log_administrador(administrador_id, acao, detalhes)
@@ -389,28 +314,25 @@ END;
 -- TRIGGERS PARA PRODUTO
 -- =========================================
 
--- Trigger para INSERT em Produto
-CREATE TRIGGER trg_insert_produto
+CREATE TRIGGER IF NOT EXISTS trg_insert_produto
 AFTER INSERT ON Produto
 BEGIN
     INSERT INTO log_administrador(administrador_id, acao, detalhes)
-    VALUES (NEW.administrador_id, 'INSERT', 'Produto criado: ' || NEW.produto_id);
+    VALUES (NULL, 'INSERT', 'Produto criado: ' || NEW.produto_id || ', nome=' || NEW.nome);
 END;
 
--- Trigger para UPDATE em Produto
-CREATE TRIGGER trg_update_produto
+CREATE TRIGGER IF NOT EXISTS trg_update_produto
 AFTER UPDATE ON Produto
 BEGIN
     INSERT INTO log_administrador(administrador_id, acao, detalhes)
-    VALUES (NEW.administrador_id, 'UPDATE', 'Produto atualizado: ' || NEW.produto_id);
+    VALUES (NULL, 'UPDATE', 'Produto atualizado: ' || NEW.produto_id || ', nome=' || NEW.nome);
 END;
 
--- Trigger para DELETE em Produto
-CREATE TRIGGER trg_delete_produto
+CREATE TRIGGER IF NOT EXISTS trg_delete_produto
 AFTER DELETE ON Produto
 BEGIN
     INSERT INTO log_administrador(administrador_id, acao, detalhes)
-    VALUES (OLD.administrador_id, 'DELETE', 'Produto removido: ' || OLD.produto_id);
+    VALUES (NULL, 'DELETE', 'Produto removido: ' || OLD.produto_id || ', nome=' || OLD.nome);
 END;
 
 
@@ -418,31 +340,47 @@ END;
 -- TRIGGERS PARA CATEGORIA
 -- =========================================
 
--- Trigger para INSERT em Categoria
-CREATE TRIGGER trg_insert_categoria
+CREATE TRIGGER IF NOT EXISTS trg_insert_categoria
 AFTER INSERT ON Categoria
 BEGIN
     INSERT INTO log_administrador(administrador_id, acao, detalhes)
-    VALUES (NEW.administrador_id, 'INSERT', 'Categoria criada: ' || NEW.categoria_id);
+    VALUES (NULL, 'INSERT', 'Categoria criada: ' || NEW.categoria_id || ', nome=' || NEW.nome);
 END;
 
--- Trigger para UPDATE em Categoria
-CREATE TRIGGER trg_update_categoria
+CREATE TRIGGER IF NOT EXISTS trg_update_categoria
 AFTER UPDATE ON Categoria
 BEGIN
     INSERT INTO log_administrador(administrador_id, acao, detalhes)
-    VALUES (NEW.administrador_id, 'UPDATE', 'Categoria atualizada: ' || NEW.categoria_id);
+    VALUES (NULL, 'UPDATE', 'Categoria atualizada: ' || NEW.categoria_id || ', nome=' || NEW.nome);
 END;
 
--- Trigger para DELETE em Categoria
-CREATE TRIGGER trg_delete_categoria
+CREATE TRIGGER IF NOT EXISTS trg_delete_categoria
 AFTER DELETE ON Categoria
 BEGIN
     INSERT INTO log_administrador(administrador_id, acao, detalhes)
-    VALUES (OLD.administrador_id, 'DELETE', 'Categoria removida: ' || OLD.categoria_id);
+    VALUES (NULL, 'DELETE', 'Categoria removida: ' || OLD.categoria_id || ', nome=' || OLD.nome);
 END;
 
-`;
+
+-- =========================================
+-- TRIGGERS PARA PRODUTO_CATEGORIA
+-- =========================================
+
+CREATE TRIGGER IF NOT EXISTS trg_insert_produto_categoria
+AFTER INSERT ON Produto_Categoria
+BEGIN
+    INSERT INTO log_administrador(administrador_id, acao, detalhes)
+    VALUES (NULL, 'INSERT', 'Vinculada categoria ' || NEW.categoria_id || ' ao produto ' || NEW.produto_id);
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_delete_produto_categoria
+AFTER DELETE ON Produto_Categoria
+BEGIN
+    INSERT INTO log_administrador(administrador_id, acao, detalhes)
+    VALUES (NULL, 'DELETE', 'Desvinculada categoria ' || OLD.categoria_id || ' do produto ' || OLD.produto_id);
+END;
+
+`
 
 export async function createTables() {
     const db = await getDB();

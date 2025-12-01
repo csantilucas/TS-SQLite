@@ -45,17 +45,17 @@ export class ProdutoController {
         }
     }
 
-    static async desvincularCategoria(produtoId: number, categoriaId: number) {
-        try {
-            const resultado = await ProdutoCategoriaService.deleteBy_Produto_Produto(produtoId, categoriaId);
-            console.log("✅ Categoria desvinculada do produto com sucesso.");
-            return resultado;
-        }
-        catch (error: any) {
-            console.error("Erro ao desvincular categoria do produto:", error.message);
-        }
-    }
-
+   static async desvincularCategoria(produtoId: number, categoriaId: number) {
+  try {
+    // Passa produto primeiro, depois categoria
+    const resultado = await ProdutoCategoriaService.deleteBy_Produto_Categoria(produtoId, categoriaId);
+    console.log("✅ Categoria desvinculada do produto com sucesso.");
+    return resultado;
+  } catch (error: any) {
+    console.error("Erro ao desvincular categoria do produto:", error.message);
+  }
+}
+ 
 
 
     // Listar todos os produtos

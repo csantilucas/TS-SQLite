@@ -1,7 +1,7 @@
 import { PedidoService } from "../services/pedidoService";
 import { PedidoProdutoService } from "../services/Pedido_ProdutoService";
-import { PedidoController, StatusPedido } from "./pedidoContorller";
 import { ProdutoController } from "./produtoController";
+import { StatusPedido } from "../models/modelPP";
 
 export class PedidoProdutoController {
 
@@ -40,7 +40,7 @@ export class PedidoProdutoController {
         }
 
         const total = itensPedido.reduce((acc, item) => acc + item.preco * item.quantidade, 0);
-        const pedidoId = await PedidoService.criar(clienteId, StatusPedido.ABERTO, total);
+        const pedidoId = await PedidoService.criar(clienteId, StatusPedido.Pendente, total);
 
         for (const item of itensPedido) {
             await PedidoProdutoService.criar(pedidoId, item.produtoId, item.quantidade, item.preco);

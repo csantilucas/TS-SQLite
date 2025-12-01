@@ -25,10 +25,10 @@ export async function menuCliente() {
         //cliente = ClienteController.logar("lucas@gmail.com", "12345")
         if (!cliente && !adm) {// nenhum logado
 
-            console.log("\n=== MENU CLIENTE ===");
+            console.log("\n=== MENU CLIENTE ===\n");
             console.log("1 - Logar");
             console.log("2 - logar adm")
-            console.log("3 - Crir login");
+            console.log("3 - Crir login\n");
 
             const opcao = await ask("Escolha uma opção: ");
 
@@ -46,7 +46,7 @@ export async function menuCliente() {
                     break
 
                 case "3"://criar
-                    const nome = await ask("Nome: ");
+                    const nome = await ask("\nNome: ");
                     const email = await ask("Email: ");
                     const senha = await ask("Senha: ");
                     const cpf = await ask("CPF: ");
@@ -55,7 +55,7 @@ export async function menuCliente() {
                     const numero = await ask("Número: ");
                     const cidade = await ask("Cidade: ");
                     const estado = await ask("Estado: ");
-                    const cep = await ask("CEP: ");
+                    const cep = await ask("CEP: \n");
                     const id = await ClienteController.criar(nome, email, senha, cpf, telefone, rua, numero, cidade, estado, cep);
                     if (id && id.clienteId) {
                         // clienteId = id.clienteId
@@ -69,21 +69,21 @@ export async function menuCliente() {
         }
         else if (cliente && !adm) {//cliente
             //menu
-            console.log("1 - meus dados");
+            console.log("\n1 - meus dados");
             console.log("2 - ver produtos");
-            console.log("0 - Sair");
-            const opcao1 = await ask("Escolha uma opção: ");
+            console.log("0 - Sair\n");
+            const opcao1 = await ask("Escolha uma opção: \n\n");
 
             switch (opcao1) {//submenu
                 case "1"://meu dados
-
-                    console.log("1 - Atualizar Dados");
+                    console.log("\n\n--------------------------------------meus dados------------------------------------------\n\n")
+                    console.log("\n1 - Atualizar Dados");
                     console.log("2 - Atualizar Endereço");
                     console.log("3 - Atulizar Senha")
                     console.log("4 - Apagar conta")
                     console.log("5 - ver meus pedidos")
                     console.log("6 - ver meus endereços")
-                    console.log("0 - voltar");
+                    console.log("0 - voltar\n");
 
                     const opcao2 = await ask("Escolha uma opção: ");
                     switch (opcao2) {
@@ -91,33 +91,33 @@ export async function menuCliente() {
                         case "1"://atualizar dados
                             console.log("\nSeus dados atuais:");
                             console.table(cliente)
-                            const nomeAtualizar = await ask("Novo nome: ");
+                            const nomeAtualizar = await ask("\nNovo nome: ");
                             const emailAtualizar = await ask("Novo email: ");
-                            const telefoneAtualizar = await ask("Novo telefone: ");
+                            const telefoneAtualizar = await ask("Novo telefone: \n");
                             await ClienteController.atualizarDados(cliente.cliente_id, nomeAtualizar, emailAtualizar, telefoneAtualizar);
                             break;
 
                         case "2"://atulizar endereco
                             const enderecos = await EnderecoService.findByClienteId(cliente.cliente_id);
-                            console.log("\nSeus endereços atuais:");
+                            console.log("\nSeus endereços atuais:\n");
                             console.table(enderecos);
                             const idEndereco = Number(await ask("ID do endereço: "));
                             const ruaAtualizar = await ask("Rua: ");
                             const bairroAtualizar = await ask("Bairro: ");
                             const numeroAtualizar = await ask("Número: ");
                             const cepAtualizar = await ask("CEP: ");
-                            const complemento = await ask("Complemento: ");
+                            const complemento = await ask("Complemento: \n");
                             await ClienteController.atualizarEndereco(idEndereco, cliente.cliente_id, ruaAtualizar, numeroAtualizar, bairroAtualizar, cepAtualizar, complemento);
                             break;
 
                         case "3"://Atualizar senha
-    
-                            const novaSenha = await ask("Nova senha: ");
-                            await ClienteController.atualizarSenha(cliente.cliente_id, novaSenha,  cliente.email);
+
+                            const novaSenha = await ask("Nova senha: \n");
+                            await ClienteController.atualizarSenha(cliente.cliente_id, novaSenha, cliente.email);
                             break;
 
                         case "4"://apagar usuario
-                            const senhaDel = await ask("Senha: ");
+                            const senhaDel = await ask("Senha: \n");
                             await ClienteController.deletarUsuario(cliente.email, senhaDel);
                             console.log("✅ Conta apagada com sucesso... saindo")
                             cliente = undefined
@@ -125,17 +125,17 @@ export async function menuCliente() {
 
                         case "5"://ver pedidos
 
-                            console.log("1 - ver todos os meus pedidos")
+                            console.log("\n1 - ver todos os meus pedidos")
                             console.log("2 - ver meus pedidos pendentes")
                             console.log("3 - ver meus pedidos concluidos")
                             console.log("4 - pagar pedido")
                             console.log("5 - cancelar pedido")
-                            console.log("0 - voltar")
+                            console.log("0 - voltar\n")
                             const opcaoPed = await ask("Escolha uma opção: ");
 
                             switch (opcaoPed) {
                                 case "1"://ver todos
-                                    console.log("\nSeus pedidos:");
+                                    console.log("\nSeus pedidos:\n");
 
                                     const pedidos = await PedidoController.buscarPorCliente(cliente.cliente_id);
 
@@ -174,12 +174,12 @@ export async function menuCliente() {
                                         }));
                                         console.table(tabelaPendentes);
                                     } else {
-                                        console.log("❌ Você não possui pedidos pendentes.");
+                                        console.log("\n❌ Você não possui pedidos pendentes.\n");
                                     }
                                     break;
 
                                 case "3"://ver concluidos
-                                    console.log("\nSeus pedidos concluidos:");
+                                    console.log("\nSeus pedidos concluidos:\n");
                                     const pedidosConcluidos = await PedidoController.listarConcluidos(cliente.cliente_id);
                                     if (pedidosConcluidos.length > 0) {
                                         const tabelaConcluidos = pedidosConcluidos.map(p => ({
@@ -191,12 +191,15 @@ export async function menuCliente() {
                                         }));
                                         console.table(tabelaConcluidos);
                                     } else {
-                                        console.log("❌ Você não possui pedidos concluídos.");
+                                        console.log("\n❌ Você não possui pedidos concluídos.\n");
                                     }
                                     break;
 
 
                                 case "4"://pagar pedido
+
+                                    let pedidosp = await PedidoController.listarPendentes(cliente.cliente_id)
+                                    console.table(pedidosp)
                                     const idPagar = Number(await ask("ID do pedido que deseja pagar: "));
                                     await PedidoController.atualizarStatus(idPagar, StatusPedido.Concluido);
                                     break;
@@ -214,7 +217,7 @@ export async function menuCliente() {
 
                         case "6"://ver endereços
                             const meusEnderecos = await ClienteController.verEndereco(cliente.cliente_id);
-                            console.log("\nSeus endereços atuais:");
+                            console.log("\nSeus endereços atuais:\n");
                             console.table(meusEnderecos);
                             console.log("Deseja cadastrar mais um endereco?")
                             console.log("1 - sim")
@@ -244,24 +247,24 @@ export async function menuCliente() {
                             break;
 
                         default:
-                            console.log("❌ Opção inválida");
+                            console.log("\n❌ Opção inválida\n");
                             break;
                     }
                     break;
-                  
+
                 case "2":// produtos
 
-                    console.log("\n--------------------------------------produtos------------------------------------------\n")
-                    console.log("1 - ver todos os produtos")
+                    console.log("\n\n--------------------------------------produtos------------------------------------------\n\n")
+                    console.log("\n1 - ver todos os produtos")
                     console.log("2 - listar por categoria")
-                    console.log("3 - Procurar por nome do produto")
+                    console.log("3 - Procurar por nome do produto\n")
 
                     let opcao = await ask("Escolha uma opçao: ")
                     switch (opcao) {
                         case "1": // listar todos
                             await ProdutoController.listarTodos()
 
-                            console.log("1 - criar pedido")
+                            console.log("\n1 - criar pedido")
                             const opcao = await ask("Escolha uma opção: ");
 
                             switch (opcao) {
@@ -276,7 +279,7 @@ export async function menuCliente() {
                         case "2":// pela categoria
 
                             let categorias = await CategoriaRepository.findAll();
-                            console.log("\nCategorias disponíveis:\n");
+                            console.log("\n\nCategorias disponíveis:\n");
                             let nc = categorias.map(cat => ({ Nome: cat.nome, Descricao: cat.descricao }));
 
                             console.table(nc);
@@ -323,13 +326,13 @@ export async function menuCliente() {
             }
         }
         else if (adm && !cliente) {
-            console.log("\n=== MENU ADMINISTRADOR ===");
+            console.log("\n\n=== MENU ADMINISTRADOR ===\n\n");
             console.log("1 - Ver todos os clientes");
             console.log("2 - Ver produtos");
             console.log("3 - Ver pedidos");
             console.log("4 - Ver categorias");
             console.log("5 - Ver administradores");
-            console.log("0 - Logout");
+            console.log("0 - Logout\n");
 
             const opcao = await ask("Escolha uma opção: ");
             switch (opcao) {
@@ -369,12 +372,12 @@ export async function menuCliente() {
                     break;
                 case "2"://ver todos os produtos
                     await ProdutoController.listarTodos();
-                    console.log("1 - criar produto");
+                    console.log("\n1 - criar produto");
                     console.log("2 - apagar produto");
                     console.log("3 - excluir produto de uma categoria")
                     console.log("4 - desvincular categoria de um produto")
                     console.log("5 - vincular categoria a um produto")
-                    console.log("6 - atualizar produto")
+                    console.log("6 - atualizar produto\n")
 
                     console.log("0 - voltar")
                     const opcaoProd = await ask("Escolha uma opção: ");
@@ -412,9 +415,10 @@ export async function menuCliente() {
                             break;
                         case "4"://desvincular categoria de um produto
                             const idProdut = Number(await ask("ID do produto: "));
-                            await CategoriaController.buscarPorProduto(idProdut);
-                            const idCategori = Number(await ask("ID da categoria: "));
-                            console.log(`Desvinculando categoria ${idCategori} do produto ${idProdut}...`);
+                            await CategoriaController.buscarPorProduto(idProdut,);
+                            const idCategori = Number(await ask("ID da categoria: "))
+                            const mudanca = ProdutoController.desvincularCategoria(idProdut, idCategori)
+                            if (mudanca) console.log(`Desvinculando categoria ${idCategori} do produto ${idProdut}... mudanças${mudanca}`);
                             break;
 
                         case "5"://vincular categoria a um produto
@@ -491,9 +495,9 @@ export async function menuCliente() {
                 case "5"://ver administradores
                     await AdministradorController.listarTodos();
 
-                    console.log("1 - criar administrador");
+                    console.log("\n 1 - criar administrador");
                     console.log("2 - apagar administrador");
-                    console.log("0 - voltar")
+                    console.log("0 - voltar\n")
                     const opcaoAdm = await ask("Escolha uma opção: ");
                     switch (opcaoAdm) {
                         case "1"://criar adm
@@ -503,8 +507,8 @@ export async function menuCliente() {
                             await AdministradorController.criar(nome, email, senha);
                             break;
                         case "2"://apagar adm
-                            console.log("⚠️ Atenção: Para apagar um administrador, você precisa do email dele.");
-                            console.log("Certifique-se de que o email está correto antes de prosseguir.");
+                            console.log("\n⚠️ Atenção: Para apagar um administrador, você precisa do email dele.");
+                            console.log("Certifique-se de que o email está correto antes de prosseguir.\n");
                             const emailadm = await ask("Email do administrador: ");
                             await AdministradorController.deletePorId(emailadm);
                             break;
@@ -519,8 +523,10 @@ export async function menuCliente() {
                     }
 
                     break;
-            }
+                case "0":
+                    console.log("Saindo...")
+                    adm=undefined
+                }
         }
-    }
-    closeAsk()
+    } closeAsk()
 }

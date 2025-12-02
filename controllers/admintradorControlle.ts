@@ -113,4 +113,4 @@ export class AdministradorController {
 }
 
 
-AdministradorController.criar("ADM","adm@gmail.com","1234")
+//AdministradorController.criar("ADM","adm@gmail.com","1234")
